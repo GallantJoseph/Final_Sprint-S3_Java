@@ -59,9 +59,9 @@ public class Menu {
                         break;
                     }
                 }
-
-                switch (roleName) {
+                switch (roleName.toLowerCase()) {
                     case "admin":
+                        loggedUser = adminMenu(scanner, loggedUser);
                         break;
                     case "trainer":
                         loggedUser = trainerMenu(scanner, loggedUser);
@@ -70,8 +70,9 @@ public class Menu {
                         loggedUser = memberMenu(scanner, loggedUser);
                         break;
                     default:
-                        break;
+                        System.out.println("Unrecognized role.");
                 }
+
             }
         } while (option != QUIT_OPTION);
     }
@@ -150,6 +151,58 @@ public class Menu {
 
         UserService.login(username, password);
     }
+
+    private static User adminMenu(Scanner scanner, User loggedUser) {
+    int option = 0;
+    final int QUIT_OPTION = 6;
+
+    do {
+
+        System.out.println("Welcome " + loggedUser.getFirstName());
+        System.out.println("Please choose an option:");
+        System.out.println("1. View all users and contact information");
+        System.out.println("2. Delete a user");
+        System.out.println("3. View all gym memberships and total revenue");
+        System.out.println("4. Merchandise Management");
+        System.out.println("5. Logout");
+
+        option = scanner.nextInt();
+        scanner.nextLine();
+
+        switch (option) {
+            case 1:
+                System.out.println("Viewing all users and contact information... under constuction");
+                break;
+
+            case 2:
+                System.out.print("Enter username of user to delete: ");
+                String usernameToDelete = scanner.nextLine();
+                System.out.println("[Attempting to delete user... under constuction]");
+                break;
+
+            case 3:
+                System.out.println("[Viewing all gym memberships and calculating revenue... under constuction]");
+                break;
+
+            case 4:
+                System.out.println("merchManagementMenu ...under constuction");
+                // merchManagementMenu(scanner); TODO create another submenuu
+                break;
+
+            case 5:
+                System.out.println("Logging out...");
+                loggedUser = null;
+                break;
+
+            default:
+                System.out.println("Invalid option. Please try again.");
+        }
+
+    } while (option != QUIT_OPTION);
+
+    return loggedUser;
+}
+
 
     private static User trainerMenu(Scanner scanner, User loggedUser) {
         int option = 0;
