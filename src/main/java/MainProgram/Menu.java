@@ -11,42 +11,188 @@ package MainProgram;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import UserManagement.UserDAO;
 import UserManagement.UserService;
-import Users.Role;
-import Users.User;
+import Users.*;
 
 public class Menu {
-    public static void MainMenu(Scanner scanner, ArrayList<Role> roles, User loggedUser){
-        // TODO:
-        // Registration and Login
-        // Membership Management
+    public static void mainMenu(Scanner scanner, ArrayList<Role> roles, User loggedUser){
+        int option = 0;
+        final int QUIT_OPTION = 3;
 
         // If no user is logged in. Show Login/Registration
-        if (loggedUser == null) {
-            //loggedUser = UserService.login(username, password)
-        } else{
-            String roleName = null;
 
-            for (Role role: roles) {
-                if (loggedUser.getRole().getId() == role.getId()){
-                    roleName = role.getName();
-                    break;
+        do {
+            if (loggedUser == null) {
+                // Header
+                System.out.println("Welcome to the Gym Management System\nPlease make a selection:\n");
+
+                System.out.println("1. Register");
+                System.out.println("2. Login");
+                System.out.println("3. Quit");
+
+                // Get user input
+                option = scanner.nextInt();
+                scanner.nextLine(); // Consume newline
+
+                switch (option) {
+                    case 1:
+                        registerMenu(scanner, roles);
+                        break;
+                    case 2:
+                        loginMenu(scanner, loggedUser, roles);
+                        break;
+                    case 3:
+                        System.out.println("Thank you for using the Gym Management System. Goodbye!");
+                        break;
+                    default:
+                        System.out.println("Invalid option. Please try again.");
+                }
+            } else{
+                String roleName = null;
+
+                for (Role role: roles) {
+                    if (loggedUser.getRole().getId() == role.getId()){
+                        roleName = role.getName();
+                        break;
+                    }
+                }
+
+                switch (roleName) {
+                    case "admin":
+                        break;
+                    case "trainer":
+                        loggedUser = trainerMenu(scanner, loggedUser);
+                        break;
+                    case "member":
+                        break;
+                    default:
+                        break;
                 }
             }
-            
-            switch (roleName) {
-                case "admin":
-                    break;
-                case "trainer":
-                    break;
-                case "member":
-                    break;
-                default:
-                    break;
-            }
+        } while (option != QUIT_OPTION);
+    }
+
+    private static void registerMenu(Scanner scanner, ArrayList<Role> roles) {
+        String username = null;
+        String password = null;
+        String firstName = null;
+        String lastName = null;
+        String address = null;
+        String city = null;
+        String province = null;
+        String postalCode = null;
+        String email = null;
+        String phoneNumber = null;
+        String roleName = null;
+        Role role = null;
+
+        System.out.println("Please enter a username:");
+        username = scanner.nextLine();
+
+        System.out.println("Please enter a password:");
+        password = scanner.nextLine();
+
+        System.out.println("Please enter your first name:");
+        firstName = scanner.nextLine();
+
+        System.out.println("Please enter your last name:");
+        lastName = scanner.nextLine();
+
+        System.out.println("Please enter your address:");
+        address = scanner.nextLine();
+
+        System.out.println("Please enter your city:");
+        city = scanner.nextLine();
+
+        System.out.println("Please enter your province:");
+        province = scanner.nextLine();
+
+        System.out.println("Please enter your postal code:");
+        postalCode = scanner.nextLine();
+
+        System.out.println("Please enter your email:");
+        email = scanner.nextLine();
+
+        System.out.println("Please enter your phone number:");
+        phoneNumber = scanner.nextLine();
+
+        System.out.println("Please enter your role (admin, trainer, member):");
+        roleName = scanner.nextLine();
+
+        if (roleName.equalsIgnoreCase("admin")) {
+            role = roles.get(0);
+        } else if (roleName.equalsIgnoreCase("trainer")) {
+            role = roles.get(1);
+        } else if (roleName.equalsIgnoreCase("member")) {
+            role = roles.get(2);
+        } else {
+            System.out.println("Invalid role. Please try again.");
+            roleName = "Member";
         }
 
+        // Send the user data to the UserService to register
+        User user = new User(0, username, password, firstName, lastName, address, city, province, postalCode, email, phoneNumber, role);
+        UserService.register(user);
+    }
 
+    private static void loginMenu(Scanner scanner, User loggedUser, ArrayList<Role> roles) {
+        String username = null;
+        String password = null;
+
+        System.out.println("Please enter your username:");
+        username = scanner.nextLine();
+
+        System.out.println("Please enter your password:");
+        password = scanner.nextLine();
+
+        UserService.login(username, password);
+    }
+
+    private static User trainerMenu(Scanner scanner, User loggedUser) {
+        int option = 0;
+        final int QUIT_OPTION = 5;
+
+        do {
+            // Header
+            System.out.println("Welcome " + loggedUser.getFirstName() + "\nPlease make a selection:\n");
+
+            System.out.println("1. Manage my workout classes");
+            System.out.println("2. Show my workout classes");
+            System.out.println("3. Purchase a membership");
+            System.out.println("4. Show the gym merchandise");
+            System.out.println("5. Logout");
+
+            option = scanner.nextInt();
+            scanner.nextLine();
+
+            switch (option){
+                case 1:
+                    manageWorkoutClasses(scanner, loggedUser);
+                    break;
+                case 2:
+                    // Show workout classes
+                    break;
+                case 3:
+                    // Purchase membership
+                    break;
+                case 4:
+                    // Show gym merchandise
+                    break;
+                case 5:
+                    System.out.println("Logging out...");
+                    loggedUser = null; // Clear the logged user
+                    break;
+                default:
+                    System.out.println("Invalid option. Please try again.");
+            }
+
+        } while (option != QUIT_OPTION);
+
+        return loggedUser;
+    }
+
+    private static void manageWorkoutClasses(Scanner scanner, User loggUser) {
 
     }
 }
