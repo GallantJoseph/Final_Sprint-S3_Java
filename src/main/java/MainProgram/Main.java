@@ -22,8 +22,8 @@ public class Main {
         loadRoles(roles);
 
         Administrator admin = new Administrator(1, "admin", "12345", "Admin", "User", "123, Main", "St. John's", "NL", "A1A1A1", "admin@keyin.com", "(123) 456-7890", roles.get(0));
-        Member member = new Member(1, "member", "12345", "Member", "User", "123, Main", "St. John's", "NL", "A1A1A1", "member@keyin.com", "(123) 456-7890", roles.get(1));
-        Trainer trainer = new Trainer(1, "joseph", "12345", "Joseph", "Gallant", "123, Main", "St. John's", "NL", "A1A1A1", "joseph.gallant@keyin.com", "(123) 456-7890", roles.get(2));
+        Trainer trainer = new Trainer(1, "joseph", "12345", "Joseph", "Gallant", "123, Main", "St. John's", "NL", "A1A1A1", "joseph.gallant@keyin.com", "(123) 456-7890", roles.get(1));
+        Member member = new Member(1, "member", "12345", "Member", "User", "123, Main", "St. John's", "NL", "A1A1A1", "member@keyin.com", "(123) 456-7890", roles.get(2));
 
         loggedUser = trainer;
         Menu.mainMenu(scanner, roles, loggedUser);
@@ -31,7 +31,7 @@ public class Main {
 
     private static void loadRoles(ArrayList<Role> roles) {
         roles.add(new Role(1, "admin"));
-        roles.add(new Role(2, "member"));
-        roles.add(new Role(3, "trainer"));
+        roles.add(new Role(2, "trainer"));
+        roles.add(new Role(3, "member"));
     }
 }
