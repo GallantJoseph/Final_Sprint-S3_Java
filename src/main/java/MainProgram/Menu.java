@@ -65,6 +65,7 @@ public class Menu {
                         loggedUser = trainerMenu(scanner, loggedUser);
                         break;
                     case "member":
+                        loggedUser = memberMenu(scanner, loggedUser);
                         break;
                     default:
                         break;
@@ -178,6 +179,48 @@ public class Menu {
                     break;
                 case 4:
                     // Show gym merchandise
+                    break;
+                case 5:
+                    System.out.println("Logging out...");
+                    loggedUser = null; // Clear the logged user
+                    break;
+                default:
+                    System.out.println("Invalid option. Please try again.");
+            }
+
+        } while (option != QUIT_OPTION);
+
+        return loggedUser;
+    }
+
+    private static User memberMenu(Scanner scanner, User loggedUser) {
+        int option = 0;
+        final int QUIT_OPTION = 5;
+        do {
+            //Header
+            System.out.println("Welcome " + loggedUser.getFirstName() + "\nPlease make a selection:\n");
+
+            System.out.println("1. Browse availlable workout classes");
+            System.out.println("2. View total membership expenses");
+            System.out.println("3. Purchase a membership");
+            System.out.println("4. Show the gym merchandise");
+            System.out.println("5. Logout");
+
+            option = scanner.nextInt();
+            scanner.nextLine();
+
+            switch (option) {
+                case 1:
+                    // Browse workout classes
+                    break;
+                case 2:
+                    // Show membership expenses
+                    break;
+                case 3:
+                    // Purchase membership
+                    break;
+                case 4:
+                    // Show gym merch
                     break;
                 case 5:
                     System.out.println("Logging out...");
