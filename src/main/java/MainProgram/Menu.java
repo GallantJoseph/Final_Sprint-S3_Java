@@ -14,6 +14,8 @@ import java.util.Scanner;
 import UserManagement.UserDAO;
 import UserManagement.UserService;
 import Users.*;
+import WorkoutClassManagement.WorkoutClassesDAO;
+import WorkoutClasses.WorkoutClass;
 
 public class Menu {
     public static void mainMenu(Scanner scanner, ArrayList<Role> roles, User loggedUser){
@@ -128,7 +130,6 @@ public class Menu {
             role = roles.get(2);
         } else {
             System.out.println("Invalid role. Please try again.");
-            roleName = "Member";
         }
 
         // Send the user data to the UserService to register
@@ -151,17 +152,16 @@ public class Menu {
 
     private static User trainerMenu(Scanner scanner, User loggedUser) {
         int option = 0;
-        final int QUIT_OPTION = 5;
+        final int QUIT_OPTION = 4;
 
         do {
             // Header
-            System.out.println("Welcome " + loggedUser.getFirstName() + "\nPlease make a selection:\n");
+            System.out.println("\nWelcome, " + loggedUser.getFirstName() + "\nPlease make a selection:\n");
 
             System.out.println("1. Manage my workout classes");
-            System.out.println("2. Show my workout classes");
-            System.out.println("3. Purchase a membership");
-            System.out.println("4. Show the gym merchandise");
-            System.out.println("5. Logout");
+            System.out.println("2. Purchase a membership");
+            System.out.println("3. Show the gym merchandise");
+            System.out.println("4. Logout");
 
             option = scanner.nextInt();
             scanner.nextLine();
@@ -171,15 +171,12 @@ public class Menu {
                     manageWorkoutClasses(scanner, loggedUser);
                     break;
                 case 2:
-                    // Show workout classes
-                    break;
-                case 3:
                     // Purchase membership
                     break;
-                case 4:
+                case 3:
                     // Show gym merchandise
                     break;
-                case 5:
+                case 4:
                     System.out.println("Logging out...");
                     loggedUser = null; // Clear the logged user
                     break;
@@ -193,6 +190,62 @@ public class Menu {
     }
 
     private static void manageWorkoutClasses(Scanner scanner, User loggUser) {
+        int option = 0;
+        final int QUIT_OPTION = 5;
 
+        do {
+            // Header
+            System.out.println("\nWorkout Class Management Menu\nPlease make a selection:\n");
+
+            System.out.println("1. Create a new workout class");
+            System.out.println("2. Update an existing workout class");
+            System.out.println("3. Delete a workout class");
+            System.out.println("4. View all workout classes");
+            System.out.println("5. Back to Trainer Menu");
+
+            option = scanner.nextInt();
+            scanner.nextLine(); // Consume newline
+
+            switch (option) {
+                case 1:
+                    // Create a new workout class
+                    break;
+                case 2:
+                    // Update an existing workout class
+                    break;
+                case 3:
+                    // Delete a workout class
+                    break;
+                case 4:
+                    showAllWorkoutClasses();
+                    break;
+                case 5:
+                    break;
+                default:
+                    System.out.println("Invalid option. Please try again.");
+            }
+        } while (option != QUIT_OPTION);
     }
+
+    private static void showAllWorkoutClasses() {
+        ArrayList<WorkoutClass> workoutClasses = WorkoutClassesDAO.getAllWorkoutClasses();
+
+        if (workoutClasses.isEmpty()) {
+            System.out.println("No workout classes available.");
+        } else {
+            // Print all workout classes
+            System.out.println("Available Workout Classes:");
+            System.out.println("-------------------------------");
+
+            for (WorkoutClass workoutClass : workoutClasses) {
+                System.out.println("Workout Class ID: " + workoutClass.getId());
+                System.out.println("Workout Class Type: " + workoutClass.getWorkoutClassType().getName());
+                System.out.println("Description: " + workoutClass.getDescription());
+                System.out.println("Trainer: " + workoutClass.getTrainer().getFirstName() + " " + workoutClass.getTrainer().getLastName());
+                System.out.println("Datetime: " + workoutClass.getDateTime());
+                System.out.println("-------------------------------");
+            }
+        }
+    }
+
 }

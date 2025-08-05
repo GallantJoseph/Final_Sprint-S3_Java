@@ -1,4 +1,4 @@
 package GymMerchManagement;
 
-public class GymMerchandise {
+public class GymMerchDAO {
 }
