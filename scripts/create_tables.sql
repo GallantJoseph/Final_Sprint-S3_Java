@@ -76,5 +76,5 @@ CREATE TABLE IF NOT EXISTS gym_merchandise (
 
 -- Insert role types only if they don't already exist
 INSERT INTO roles (name)
-VALUES ('member'), ('admin'), ('trainer')
+VALUES ('admin'), ('trainer'), ('member')
 ON CONFLICT (name) DO NOTHING;
