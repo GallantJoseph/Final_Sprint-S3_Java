@@ -154,10 +154,9 @@ public class Menu {
 
     private static User adminMenu(Scanner scanner, User loggedUser) {
     int option = 0;
-    final int QUIT_OPTION = 6;
+    final int QUIT_OPTION = 5;
 
     do {
-
         System.out.println("Welcome " + loggedUser.getFirstName());
         System.out.println("Please choose an option:");
         System.out.println("1. View all users and contact information");
@@ -193,7 +192,6 @@ public class Menu {
                 System.out.println("Logging out...");
                 loggedUser = null;
                 break;
-
             default:
                 System.out.println("Invalid option. Please try again.");
         }
