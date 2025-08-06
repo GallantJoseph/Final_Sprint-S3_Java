@@ -3,6 +3,7 @@ package MembershipManagement;
 import DBManager.DatabaseConnection;
 import Memberships.Membership;
 import UserManagement.UserDAO;
+import Users.Role;
 import Users.User;
 
 import java.sql.*;
@@ -30,7 +31,7 @@ public class MembershipsDAO {
         }
     }
 
-    public static Membership getMembershipById(int membershipId) {
+    public static Membership getMembershipById(int membershipId, ArrayList<Role> roles) {
         Membership membership = null;
         final String SQL = "SELECT * FROM memberships WHERE membership_id = ?";
 
@@ -44,7 +45,7 @@ public class MembershipsDAO {
                 membership = new Membership(
                         resultSet.getInt("membership_id"),
                         MembershipTypesDAO.getMembershipTypeById(resultSet.getInt("membership_type_id")),
-                        (User) UserDAO.getUserById(resultSet.getInt("member_id")),
+                        (User) UserDAO.getUserById(resultSet.getInt("member_id"), roles),
                         resultSet.getDate("membership_start").toLocalDate(),
                         resultSet.getDate("membership_end") != null ? resultSet.getDate("membership_end").toLocalDate() : null
                 );
@@ -59,7 +60,7 @@ public class MembershipsDAO {
         return membership;
     }
 
-    public static ArrayList<Membership> getAllMemberships() {
+    public static ArrayList<Membership> getAllMemberships(ArrayList<Role> roles) {
         ArrayList<Membership> memberships = new ArrayList<>();
         final String SQL = "SELECT * FROM memberships";
 
@@ -72,7 +73,7 @@ public class MembershipsDAO {
                 Membership membership = new Membership(
                         resultSet.getInt("membership_id"),
                         MembershipTypesDAO.getMembershipTypeById(resultSet.getInt("membership_type_id")),
-                        (User) UserDAO.getUserById(resultSet.getInt("member_id")),
+                        (User) UserDAO.getUserById(resultSet.getInt("member_id"), roles),
                         resultSet.getDate("membership_start").toLocalDate(),
                         resultSet.getDate("membership_end") != null ? resultSet.getDate("membership_end").toLocalDate() : null
                 );
@@ -87,7 +88,7 @@ public class MembershipsDAO {
         return memberships;
     }
 
-    public static ArrayList<Membership> getUserMemberships(int memberId) {
+    public static ArrayList<Membership> getUserMemberships(int memberId, ArrayList<Role> roles) {
         ArrayList<Membership> memberships = new ArrayList<>();
         final String SQL = "SELECT * FROM memberships WHERE member_id = ?";
 
@@ -101,7 +102,7 @@ public class MembershipsDAO {
                 Membership membership = new Membership(
                         resultSet.getInt("membership_id"),
                         MembershipTypesDAO.getMembershipTypeById(resultSet.getInt("membership_type_id")),
-                        (User) UserDAO.getUserById(resultSet.getInt("member_id")),
+                        (User) UserDAO.getUserById(resultSet.getInt("member_id"), roles),
                         resultSet.getDate("membership_start").toLocalDate(),
                         resultSet.getDate("membership_end") != null ? resultSet.getDate("membership_end").toLocalDate() : null
                 );

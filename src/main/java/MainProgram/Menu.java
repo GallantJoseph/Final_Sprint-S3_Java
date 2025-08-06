@@ -10,6 +10,7 @@ package MainProgram;
 
 import java.util.ArrayList;
 import java.util.Scanner;
+
 import UserManagement.UserDAO;
 import UserManagement.UserService;
 import Users.*;
@@ -63,7 +64,7 @@ public class Menu {
                         loggedUser = adminMenu(scanner, loggedUser);
                         break;
                     case "trainer":
-                        loggedUser = trainerMenu(scanner, loggedUser);
+                        loggedUser = trainerMenu(scanner, loggedUser, roles);
                         break;
                     case "member":
                         loggedUser = memberMenu(scanner, loggedUser);
@@ -153,10 +154,9 @@ public class Menu {
 
     private static User adminMenu(Scanner scanner, User loggedUser) {
         int option = 0;
-        final int QUIT_OPTION = 6;
+        final int QUIT_OPTION = 5;
 
         do {
-
             System.out.println("Welcome " + loggedUser.getFirstName());
             System.out.println("Please choose an option:");
             System.out.println("1. View all users and contact information");
@@ -192,7 +192,6 @@ public class Menu {
                     System.out.println("Logging out...");
                     loggedUser = null;
                     break;
-
                 default:
                     System.out.println("Invalid option. Please try again.");
             }
@@ -215,7 +214,7 @@ private static void merchManagementMenu(Scanner scanner) {
         System.out.println("5. Back to Admin Menu");
 
         option = scanner.nextInt();
-        scanner.nextLine(); 
+        scanner.nextLine();
 
         switch (option) {
             case 1:
@@ -246,7 +245,8 @@ private static void merchManagementMenu(Scanner scanner) {
     } while (option != QUIT_OPTION);
 }
 
-    private static User trainerMenu(Scanner scanner, User loggedUser) {
+
+    private static User trainerMenu(Scanner scanner, User loggedUser, ArrayList<Role> roles) {
         int option = 0;
         final int QUIT_OPTION = 4;
 
@@ -264,7 +264,7 @@ private static void merchManagementMenu(Scanner scanner) {
 
             switch (option){
                 case 1:
-                    manageWorkoutClasses(scanner, loggedUser);
+                    manageWorkoutClasses(scanner, loggedUser, roles);
                     break;
                 case 2:
                     // Purchase membership
@@ -327,7 +327,7 @@ private static void merchManagementMenu(Scanner scanner) {
         return loggedUser;
     }
 
-    private static void manageWorkoutClasses(Scanner scanner, User loggUser) {
+    private static void manageWorkoutClasses(Scanner scanner, User loggedUser, ArrayList<Role> roles) {
         int option = 0;
         final int QUIT_OPTION = 5;
 
@@ -338,7 +338,7 @@ private static void merchManagementMenu(Scanner scanner) {
             System.out.println("1. Create a new workout class");
             System.out.println("2. Update an existing workout class");
             System.out.println("3. Delete a workout class");
-            System.out.println("4. View all workout classes");
+            System.out.println("4. View your workout classes");
             System.out.println("5. Back to Trainer Menu");
 
             option = scanner.nextInt();
@@ -355,7 +355,7 @@ private static void merchManagementMenu(Scanner scanner) {
                     // Delete a workout class
                     break;
                 case 4:
-                    showAllWorkoutClasses();
+                    showTrainerWorkoutClasses(loggedUser, roles);
                     break;
                 case 5:
                     break;
@@ -365,25 +365,42 @@ private static void merchManagementMenu(Scanner scanner) {
         } while (option != QUIT_OPTION);
     }
 
-    private static void showAllWorkoutClasses() {
-        ArrayList<WorkoutClass> workoutClasses = WorkoutClassesDAO.getAllWorkoutClasses();
+    private static void showAllWorkoutClasses(ArrayList<Role> roles) {
+        ArrayList<WorkoutClass> workoutClasses = WorkoutClassesDAO.getWorkoutClasses(-1,roles);
 
         if (workoutClasses.isEmpty()) {
-            System.out.println("No workout classes available.");
+            System.out.println("\nNo workout classes available.");
         } else {
             // Print all workout classes
-            System.out.println("Available Workout Classes:");
+            System.out.println("\nAvailable workout classes:");
             System.out.println("-------------------------------");
 
             for (WorkoutClass workoutClass : workoutClasses) {
-                System.out.println("Workout Class ID: " + workoutClass.getId());
                 System.out.println("Workout Class Type: " + workoutClass.getWorkoutClassType().getName());
                 System.out.println("Description: " + workoutClass.getDescription());
-                System.out.println("Trainer: " + workoutClass.getTrainer().getFirstName() + " " + workoutClass.getTrainer().getLastName());
-                System.out.println("Datetime: " + workoutClass.getDateTime());
+                System.out.println("Trainer: " + workoutClass.getTrainer().getFullName());
+                System.out.println("Date and time: " + workoutClass.getDateTime());
                 System.out.println("-------------------------------");
             }
         }
     }
 
+    private static void showTrainerWorkoutClasses(User trainer, ArrayList<Role> roles) {
+        ArrayList<WorkoutClass> workoutClasses = WorkoutClassesDAO.getWorkoutClasses(trainer.getUserId(),roles);
+
+        if (workoutClasses.isEmpty()) {
+            System.out.println("\nNo workout classes for trainer " + trainer.getFullName() + ".");
+        } else {
+            // Print all workout classes
+            System.out.println("\nWorkout classes of " + trainer.getFullName() + ":");
+            System.out.println("-------------------------------");
+
+            for (WorkoutClass workoutClass : workoutClasses) {
+                System.out.println("Workout Class Type: " + workoutClass.getWorkoutClassType().getName());
+                System.out.println("Description: " + workoutClass.getDescription());
+                System.out.println("Date and time: " + workoutClass.getDateTime());
+                System.out.println("-------------------------------");
+            }
+        }
+    }
 }
