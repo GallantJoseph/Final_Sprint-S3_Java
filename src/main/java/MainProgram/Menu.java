@@ -153,52 +153,96 @@ public class Menu {
     }
 
     private static User adminMenu(Scanner scanner, User loggedUser) {
+        int option = 0;
+        final int QUIT_OPTION = 5;
+
+        do {
+            System.out.println("Welcome " + loggedUser.getFirstName());
+            System.out.println("Please choose an option:");
+            System.out.println("1. View all users and contact information");
+            System.out.println("2. Delete a user");
+            System.out.println("3. View all gym memberships and total revenue");
+            System.out.println("4. Merchandise Management");
+            System.out.println("5. Logout");
+
+            option = scanner.nextInt();
+            scanner.nextLine();
+
+            switch (option) {
+                case 1:
+                    System.out.println("Viewing all users and contact information... under constuction");
+                    break;
+
+                case 2:
+                    System.out.print("Enter username of user to delete: ");
+                    String usernameToDelete = scanner.nextLine();
+                    System.out.println("[Attempting to delete user... under constuction]");
+                    break;
+
+                case 3:
+                    System.out.println("[Viewing all gym memberships and calculating revenue... under constuction]");
+                    break;
+
+                case 4:
+                    System.out.println("merchManagementMenu ...under constuction");
+                    merchManagementMenu(scanner);
+                    break;
+
+                case 5:
+                    System.out.println("Logging out...");
+                    loggedUser = null;
+                    break;
+                default:
+                    System.out.println("Invalid option. Please try again.");
+            }
+
+        } while (option != QUIT_OPTION);
+
+        return loggedUser;
+    }
+
+private static void merchManagementMenu(Scanner scanner) {
     int option = 0;
     final int QUIT_OPTION = 5;
 
     do {
-        System.out.println("Welcome " + loggedUser.getFirstName());
-        System.out.println("Please choose an option:");
-        System.out.println("1. View all users and contact information");
-        System.out.println("2. Delete a user");
-        System.out.println("3. View all gym memberships and total revenue");
-        System.out.println("4. Merchandise Management");
-        System.out.println("5. Logout");
+        System.out.println("\nMerchandise Management Menu");
+        System.out.println("1. Add new merchandise");
+        System.out.println("2. Edit merchandise");
+        System.out.println("3. Delete merchandise");
+        System.out.println("4. Print all merchandise report and total stock value");
+        System.out.println("5. Back to Admin Menu");
 
         option = scanner.nextInt();
         scanner.nextLine();
 
         switch (option) {
             case 1:
-                System.out.println("Viewing all users and contact information... under constuction");
+                System.out.println("Add new merchandise... under construction");
                 break;
 
             case 2:
-                System.out.print("Enter username of user to delete: ");
-                String usernameToDelete = scanner.nextLine();
-                System.out.println("[Attempting to delete user... under constuction]");
+                System.out.print("Enter merchandise ID to edit: ");
+                scanner.nextLine(); 
+                System.out.println("Edit merchandise... under construction");
                 break;
 
             case 3:
-                System.out.println("[Viewing all gym memberships and calculating revenue... under constuction]");
+                System.out.println("Delete merchandise... under construction");
                 break;
 
             case 4:
-                System.out.println("merchManagementMenu ...under constuction");
-                // merchManagementMenu(scanner); TODO create another submenuu
+                System.out.println("Print merchandise report... under construction");
                 break;
 
             case 5:
-                System.out.println("Logging out...");
-                loggedUser = null;
+                System.out.println("Returning to Admin Menu.");
                 break;
+
             default:
                 System.out.println("Invalid option. Please try again.");
         }
-
     } while (option != QUIT_OPTION);
-
-    return loggedUser;
 }
 
 
