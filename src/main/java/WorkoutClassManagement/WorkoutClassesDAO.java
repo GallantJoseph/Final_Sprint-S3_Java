@@ -5,7 +5,6 @@ import UserManagement.UserDAO;
 import Users.Role;
 import Users.Trainer;
 import WorkoutClasses.WorkoutClass;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
