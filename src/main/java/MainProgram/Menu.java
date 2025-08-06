@@ -67,7 +67,7 @@ public class Menu {
                         loggedUser = trainerMenu(scanner, loggedUser, roles);
                         break;
                     case "member":
-                        loggedUser = memberMenu(scanner, loggedUser);
+                        loggedUser = memberMenu(scanner, loggedUser, roles);
                         break;
                     default:
                         System.out.println("Unrecognized role.");
@@ -285,8 +285,8 @@ private static void merchManagementMenu(Scanner scanner) {
         return loggedUser;
     }
 
-    private static User memberMenu(Scanner scanner, User loggedUser) {
-        int option = 0;
+    private static User memberMenu(Scanner scanner, User loggedUser, ArrayList<Role> roles) {
+        int option;
         final int QUIT_OPTION = 5;
         do {
             //Header
@@ -297,6 +297,7 @@ private static void merchManagementMenu(Scanner scanner) {
             System.out.println("3. Purchase a membership");
             System.out.println("4. Show the gym merchandise");
             System.out.println("5. Logout");
+            System.out.print("> ");
 
             option = scanner.nextInt();
             scanner.nextLine();
@@ -304,6 +305,9 @@ private static void merchManagementMenu(Scanner scanner) {
             switch (option) {
                 case 1:
                     // Browse workout classes
+                    showAllWorkoutClasses(roles);
+                    System.out.println("\nPress ENTER to return to menu...");
+                    scanner.nextLine();
                     break;
                 case 2:
                     // Show membership expenses
@@ -315,6 +319,7 @@ private static void merchManagementMenu(Scanner scanner) {
                     // Show gym merch
                     break;
                 case 5:
+                    // Logout user
                     System.out.println("Logging out...");
                     loggedUser = null; // Clear the logged user
                     break;
