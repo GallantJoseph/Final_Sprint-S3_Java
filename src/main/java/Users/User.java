@@ -31,6 +31,21 @@ public class User {
         this.role = role;
     }
 
+    public User(User user) {
+        this.userId = user.userId;
+        this.username = user.username;
+        this.password = user.password;
+        this.firstName = user.firstName;
+        this.lastName = user.lastName;
+        this.streetAddress = user.streetAddress;
+        this.city = user.city;
+        this.province = user.province;
+        this.postalCode = user.postalCode;
+        this.email = user.email;
+        this.phone = user.phone;
+        this.role = user.role;
+    }
+
     // Getters
     public int getUserId() {
         return userId;
@@ -50,6 +65,10 @@ public class User {
 
     public String getLastName() {
         return lastName;
+    }
+
+    public String getFullName() {
+        return firstName + " " + lastName;
     }
 
     public String getStreetAddress() {

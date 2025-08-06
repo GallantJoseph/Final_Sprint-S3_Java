@@ -6,4 +6,8 @@ public class Member extends User {
                 String email, String phone, Role role) {
         super(userId, username, password, firstName, lastName, streetAddress, city, province, postalCode, email, phone, role);
     }
+
+    public Member(User user) {
+        super(user);
+    }
 }

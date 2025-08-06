@@ -2,6 +2,7 @@ package WorkoutClassManagement;
 
 import DBManager.DatabaseConnection;
 import UserManagement.UserDAO;
+import Users.Role;
 import Users.Trainer;
 import WorkoutClasses.WorkoutClass;
 
@@ -10,7 +11,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
-
 import java.util.ArrayList;
 
 public class WorkoutClassesDAO {
@@ -34,7 +34,7 @@ public class WorkoutClassesDAO {
         }
     }
 
-    public static WorkoutClass getWorkoutClassById(int workoutClassId) {
+    public static WorkoutClass getWorkoutClassById(int workoutClassId, ArrayList<Role> roles) {
         WorkoutClass workoutClass = null;
         final String SQL = "SELECT * FROM workout_classes WHERE workout_class_id = ?";
 
@@ -49,9 +49,11 @@ public class WorkoutClassesDAO {
                     resultSet.getInt("workout_class_id"),
                     WorkoutClassTypesDAO.getWorkoutClassType(resultSet.getInt("workout_class_type_id")),
                     resultSet.getString("workout_class_desc"),
-                    (Trainer) UserDAO.getUserById(resultSet.getInt("trainer_id")),
-                    (LocalDateTime) resultSet.getObject("workout_class_datetime")
+                    (Trainer) UserDAO.getUserById(resultSet.getInt("trainer_id"), roles),
+                     LocalDateTime.now()
                 );
+
+                // (LocalDateTime) resultSet.getString("workout_class_datetime")
             } else {
                 System.out.println("No workout class found with ID: " + workoutClassId);
             }
@@ -64,55 +66,43 @@ public class WorkoutClassesDAO {
         return workoutClass;
     }
 
-    public static ArrayList<WorkoutClass> getAllWorkoutClasses() {
+    /**
+     *
+     * @param trainerId use -1 to get all the workout classes
+     * @param roles
+     * @return
+     */
+    public static ArrayList<WorkoutClass> getWorkoutClasses(int trainerId, ArrayList<Role> roles){
         ArrayList<WorkoutClass> workoutClasses = new ArrayList<>();
-        final String SQL = "SELECT * FROM workout_classes";
+        String sql = "SELECT * FROM workout_classes";
 
-        try {
-            Connection connection = DatabaseConnection.getConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement(SQL);
-
-            ResultSet resultSet = preparedStatement.executeQuery();
-            while (resultSet.next()) {
-                // TODO Fix datetime format
-                WorkoutClass workoutClass = new WorkoutClass(
-                    resultSet.getInt("workout_class_id"),
-                        WorkoutClassTypesDAO.getWorkoutClassType(resultSet.getInt("workout_class_type_id")),
-                        resultSet.getString("workout_class_desc"),
-                        (Trainer) UserDAO.getUserById(resultSet.getInt("trainer_id")),
-                        (LocalDateTime) resultSet.getObject("workout_class_datetime")
-                );
-
-                workoutClasses.add(workoutClass);
-            }
-        } catch (SQLException e) {
-            System.out.println("Error while retrieving the workout classes.");
-            // TODO Log the error
-            e.printStackTrace();
+        // Add the condition if the trainerId is not -1
+        if (trainerId != -1){
+            sql += " WHERE trainer_id = ?";
         }
 
-        return workoutClasses;
-    }
-
-    public static ArrayList<WorkoutClass> getTrainerWorkoutClasses(int trainerId){
-        ArrayList<WorkoutClass> workoutClasses = new ArrayList<>();
-        final String SQL = "SELECT * FROM workout_classes WHERE trainer_id = ?";
-
         try {
             Connection connection = DatabaseConnection.getConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement(SQL);
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
 
-            preparedStatement.setInt(1, trainerId);
+            // Only add the parameter if the trainerId is not -1
+            if (trainerId != -1) {
+                preparedStatement.setInt(1, trainerId);
+            }
+
             ResultSet resultSet = preparedStatement.executeQuery();
 
             while (resultSet.next()) {
+                // TODO Fix datetime format
                 WorkoutClass workoutClass = new WorkoutClass(
                         resultSet.getInt("workout_class_id"),
                         WorkoutClassTypesDAO.getWorkoutClassType(resultSet.getInt("workout_class_type_id")),
                         resultSet.getString("workout_class_desc"),
-                        (Trainer) UserDAO.getUserById(resultSet.getInt("trainer_id")),
-                        (LocalDateTime) resultSet.getObject("workout_class_datetime")
+                        new Trainer(UserDAO.getUserById(resultSet.getInt("trainer_id"), roles)),
+                        LocalDateTime.now()
                 );
+
+                //(LocalDateTime) resultSet.getObject("workout_class_datetime")
 
                 workoutClasses.add(workoutClass);
             }
