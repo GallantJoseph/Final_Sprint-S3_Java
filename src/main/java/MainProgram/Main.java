@@ -25,7 +25,7 @@ public class Main {
         Trainer trainer = new Trainer(1, "joseph", "12345", "Joseph", "Gallant", "123, Main", "St. John's", "NL", "A1A1A1", "joseph.gallant@keyin.com", "(123) 456-7890", roles.get(1));
         Member member = new Member(1, "member", "12345", "Member", "User", "123, Main", "St. John's", "NL", "A1A1A1", "member@keyin.com", "(123) 456-7890", roles.get(2));
 
-        loggedUser = trainer;
+        loggedUser = admin;
         Menu.mainMenu(scanner, roles, loggedUser);
     }
 
