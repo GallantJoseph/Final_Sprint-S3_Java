@@ -15,8 +15,39 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 public class UserDAO {
-    public static void createUser(User user) {
-        System.out.println("User " + user.getUsername() + " created successfully.");
+    public static int createUser(User user) {
+        final String SQL = "INSERT INTO users (username, password, first_name, last_name, street_address, city, province, postal_code, email, phone, role_id) VALUES (?,?,?,?,?,?,?,?,?,?,?)";
+        int generatedId = -1;
+
+        try {
+            Connection connection = DatabaseConnection.getConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(SQL, PreparedStatement.RETURN_GENERATED_KEYS);
+
+            preparedStatement.setString(1, user.getUsername());
+            preparedStatement.setString(2, user.getPassword());
+            preparedStatement.setString(3, user.getFirstName());
+            preparedStatement.setString(4, user.getLastName());
+            preparedStatement.setString(5, user.getStreetAddress());
+            preparedStatement.setString(6, user.getCity());
+            preparedStatement.setString(7, user.getProvince());
+            preparedStatement.setString(8, user.getPostalCode());
+            preparedStatement.setString(9, user.getEmail());
+            preparedStatement.setString(10, user.getPhone());
+            preparedStatement.setInt(11, user.getRole().getId());
+
+            preparedStatement.executeUpdate();
+
+            ResultSet generatedKeys = preparedStatement.getGeneratedKeys();
+            if (generatedKeys.next()) {
+                generatedId = generatedKeys.getInt(1); // Set the generated user ID
+            }
+        } catch (SQLException e) {
+            System.out.println("Error while adding the new user.\n");
+            // TODO Log the error
+            e.printStackTrace();
+        }
+
+        return generatedId;
     }
 
     public static void updateUser(User user) {

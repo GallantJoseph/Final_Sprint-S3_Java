@@ -10,22 +10,31 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class WorkoutClassTypesDAO {
-    public static void createWorkoutClassType(String name, String description){
+    public static int createWorkoutClassType(String name, String description){
         final String SQL = "INSERT INTO workout_class_types (name, description) VALUES (?,?)";
 
         try {
             Connection connection = DatabaseConnection.getConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement(SQL);
+            PreparedStatement preparedStatement = connection.prepareStatement(SQL, PreparedStatement.RETURN_GENERATED_KEYS);
 
             preparedStatement.setString(1, name);
             preparedStatement.setString(2, description);
 
             preparedStatement.executeUpdate();
+
+            // Retrieve the generated ID of the new workout class type
+            ResultSet generatedKeys = preparedStatement.getGeneratedKeys();
+            if (generatedKeys.next()) {
+                return generatedKeys.getInt(1); // Return the ID of the newly created workout class type
+            }
         } catch (SQLException e) {
             System.out.println("Error while adding the new workout class type.");
             // TODO Log the error
             e.printStackTrace();
         }
+
+        System.out.println("No ID was generated for the new workout class type.");
+        return -1; // Return -1 to indicate failure
     }
 
     public static WorkoutClassType getWorkoutClassType(int workoutClassTypeId) {

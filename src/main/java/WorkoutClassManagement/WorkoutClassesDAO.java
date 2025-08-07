@@ -13,24 +13,30 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 public class WorkoutClassesDAO {
-    public static void createWorkoutClass(int workoutClassTypeId, String workoutClassDesc, int trainerId) {
+    public static int createWorkoutClass(int workoutClassTypeId, String workoutClassDesc, int trainerId, LocalDateTime workoutClassDatetime) {
         final String SQL = "INSERT INTO workout_classes (workout_class_type_id, workout_class_desc, trainer_id, workout_class_datetime) VALUES (?, ?, ?, ?)";
 
         try {
             Connection connection = DatabaseConnection.getConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement(SQL);
+            PreparedStatement preparedStatement = connection.prepareStatement(SQL, PreparedStatement.RETURN_GENERATED_KEYS);
 
             preparedStatement.setInt(1, workoutClassTypeId);
             preparedStatement.setString(2, workoutClassDesc);
             preparedStatement.setInt(3, trainerId);
-            preparedStatement.setObject(4, LocalDateTime.now());
+            preparedStatement.setObject(4, workoutClassDatetime);
 
             preparedStatement.executeUpdate();
+
+            if (preparedStatement.getGeneratedKeys().next()) {
+                return preparedStatement.getGeneratedKeys().getInt(1); // Return the ID of the newly created workout class
+            }
         } catch (SQLException e) {
             System.out.println("Error while adding the new workout class.");
             // TODO Log the error
             e.printStackTrace();
         }
+
+        return -1; // Return -1 to indicate failure
     }
 
     public static WorkoutClass getWorkoutClassById(int workoutClassId, ArrayList<Role> roles) {
@@ -48,13 +54,11 @@ public class WorkoutClassesDAO {
                     resultSet.getInt("workout_class_id"),
                     WorkoutClassTypesDAO.getWorkoutClassType(resultSet.getInt("workout_class_type_id")),
                     resultSet.getString("workout_class_desc"),
-                    (Trainer) UserDAO.getUserById(resultSet.getInt("trainer_id"), roles),
-                     LocalDateTime.now()
+                    new Trainer(UserDAO.getUserById(resultSet.getInt("trainer_id"), roles)),
+                    LocalDateTime.now()
                 );
 
                 // (LocalDateTime) resultSet.getString("workout_class_datetime")
-            } else {
-                System.out.println("No workout class found with ID: " + workoutClassId);
             }
         } catch (SQLException e) {
             System.out.println("Error while retrieving the workout class.");
@@ -135,8 +139,9 @@ public class WorkoutClassesDAO {
         }
     }
 
-    public static void deleteWorkoutClass(int workoutClassId) {
+    public static int deleteWorkoutClass(int workoutClassId) {
         final String SQL = "DELETE FROM workout_classes WHERE workout_class_id = ?";
+        int affectedRows = 0;
 
         try {
             Connection connection = DatabaseConnection.getConnection();
@@ -144,11 +149,13 @@ public class WorkoutClassesDAO {
 
             preparedStatement.setInt(1, workoutClassId);
 
-            preparedStatement.executeUpdate();
+            affectedRows = preparedStatement.executeUpdate();
         } catch (SQLException e) {
             System.out.println("Error while deleting the workout class.");
             // TODO Log the error
             e.printStackTrace();
         }
+
+        return affectedRows;
     }
 }
