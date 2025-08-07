@@ -76,9 +76,53 @@ public class UserDAO {
         return user;
     }
 
-    public static User getUserByUsername(String username) {
-        // Get a user from their username
-        return null;
+    public static User getUserByUsername(String username, ArrayList<Role> roles) {
+        User user = null;
+        final String SQL = "SELECT * FROM users WHERE username = ?";
+
+        try {
+            Connection connection = DatabaseConnection.getConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(SQL);
+            preparedStatement.setString(1, username);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                // Find the role object that matches the role_id from the result set
+                int roleId = resultSet.getInt("role_id");
+                Role foundRole = null;
+
+                for (Role role : roles) {
+                    if (role.getId() == roleId) {
+                        foundRole = role;
+                        break; // Element found, exit loop
+                    }
+                }
+
+                user = new User(
+                        resultSet.getInt("user_id"),
+                        resultSet.getString("username"),
+                        resultSet.getString("password"),
+                        resultSet.getString("first_name"),
+                        resultSet.getString("last_name"),
+                        resultSet.getString("street_address"),
+                        resultSet.getString("city"),
+                        resultSet.getString("province"),
+                        resultSet.getString("postal_code"),
+                        resultSet.getString("email"),
+                        resultSet.getString("phone"),
+                        foundRole
+                );
+
+            } else {
+                System.out.println("No user found with username: " + username);
+            }
+        } catch (SQLException e) {
+            System.out.println("Error while retrieving the user.");
+            // TODO Log the error
+            e.printStackTrace();
+        }
+
+        return user;
     }
 
     public static ArrayList<Role> getRoles() {
