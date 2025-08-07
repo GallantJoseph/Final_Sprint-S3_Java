@@ -15,8 +15,39 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 public class UserDAO {
-    public static void createUser(User user) {
-        System.out.println("User " + user.getUsername() + " created successfully.");
+    public static int createUser(User user) {
+        final String SQL = "INSERT INTO users (username, password, first_name, last_name, street_address, city, province, postal_code, email, phone, role_id) VALUES (?,?,?,?,?,?,?,?,?,?,?)";
+        int generatedId = -1;
+
+        try {
+            Connection connection = DatabaseConnection.getConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(SQL, PreparedStatement.RETURN_GENERATED_KEYS);
+
+            preparedStatement.setString(1, user.getUsername());
+            preparedStatement.setString(2, user.getPassword());
+            preparedStatement.setString(3, user.getFirstName());
+            preparedStatement.setString(4, user.getLastName());
+            preparedStatement.setString(5, user.getStreetAddress());
+            preparedStatement.setString(6, user.getCity());
+            preparedStatement.setString(7, user.getProvince());
+            preparedStatement.setString(8, user.getPostalCode());
+            preparedStatement.setString(9, user.getEmail());
+            preparedStatement.setString(10, user.getPhone());
+            preparedStatement.setInt(11, user.getRole().getId());
+
+            preparedStatement.executeUpdate();
+
+            ResultSet generatedKeys = preparedStatement.getGeneratedKeys();
+            if (generatedKeys.next()) {
+                generatedId = generatedKeys.getInt(1); // Set the generated user ID
+            }
+        } catch (SQLException e) {
+            System.out.println("Error while adding the new user.\n");
+            // TODO Log the error
+            e.printStackTrace();
+        }
+
+        return generatedId;
     }
 
     public static void updateUser(User user) {
@@ -76,9 +107,53 @@ public class UserDAO {
         return user;
     }
 
-    public static User getUserByUsername(String username) {
-        // Get a user from their username
-        return null;
+    public static User getUserByUsername(String username, ArrayList<Role> roles) {
+        User user = null;
+        final String SQL = "SELECT * FROM users WHERE username = ?";
+
+        try {
+            Connection connection = DatabaseConnection.getConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(SQL);
+            preparedStatement.setString(1, username);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                // Find the role object that matches the role_id from the result set
+                int roleId = resultSet.getInt("role_id");
+                Role foundRole = null;
+
+                for (Role role : roles) {
+                    if (role.getId() == roleId) {
+                        foundRole = role;
+                        break; // Element found, exit loop
+                    }
+                }
+
+                user = new User(
+                        resultSet.getInt("user_id"),
+                        resultSet.getString("username"),
+                        resultSet.getString("password"),
+                        resultSet.getString("first_name"),
+                        resultSet.getString("last_name"),
+                        resultSet.getString("street_address"),
+                        resultSet.getString("city"),
+                        resultSet.getString("province"),
+                        resultSet.getString("postal_code"),
+                        resultSet.getString("email"),
+                        resultSet.getString("phone"),
+                        foundRole
+                );
+
+            } else {
+                System.out.println("No user found with username: " + username);
+            }
+        } catch (SQLException e) {
+            System.out.println("Error while retrieving the user.");
+            // TODO Log the error
+            e.printStackTrace();
+        }
+
+        return user;
     }
 
     public static ArrayList<Role> getRoles() {
