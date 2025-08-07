@@ -34,6 +34,7 @@ public class Menu {
                 System.out.println("1. Register");
                 System.out.println("2. Login");
                 System.out.println("3. Quit");
+                System.out.print("> ");
 
                 // Get user input
                 option = scanner.nextInt();
@@ -203,8 +204,7 @@ public class Menu {
         return loggedUser;
     }
 
-
-public static void merchManagementMenu(Scanner scanner) {
+    public static void merchManagementMenu(Scanner scanner) {
     while (true) {
         System.out.println("\nMerchandise Management Menu");
         System.out.println("1. Add new merchandise");
@@ -237,107 +237,120 @@ public static void merchManagementMenu(Scanner scanner) {
     }
 }
 
-private static void addNewMerchandise(Scanner scanner) {
-    System.out.print("Enter merchandise type name: ");
-    String typeName = scanner.nextLine().trim();
+    private static void addNewMerchandise(Scanner scanner) {
+        System.out.print("Enter merchandise type name: ");
+        String typeName = scanner.nextLine().trim();
 
-    MerchandiseTypes type = null;
-    ArrayList<MerchandiseTypes> types = GymMerchDAO.getAllMerchandiseTypes();
+        MerchandiseTypes type = null;
+        ArrayList<MerchandiseTypes> types = GymMerchDAO.getAllMerchandiseTypes();
 
-    for (MerchandiseTypes t : types) {
-        if (t.getMerchandiseTypeName().equalsIgnoreCase(typeName)) {
-            type = t;
-            break;
-        }
-    }
-
-    if (type == null) {
-        GymMerchDAO.createMerchandiseType(typeName);
-        types = GymMerchDAO.getAllMerchandiseTypes();
         for (MerchandiseTypes t : types) {
             if (t.getMerchandiseTypeName().equalsIgnoreCase(typeName)) {
                 type = t;
                 break;
             }
         }
+
+        if (type == null) {
+            GymMerchDAO.createMerchandiseType(typeName);
+            types = GymMerchDAO.getAllMerchandiseTypes();
+            for (MerchandiseTypes t : types) {
+                if (t.getMerchandiseTypeName().equalsIgnoreCase(typeName)) {
+                    type = t;
+                    break;
+                }
+            }
+        }
+
+        System.out.print("Enter merchandise name: ");
+        String name = scanner.nextLine();
+
+        System.out.print("Enter merchandise price: ");
+        double price = Double.parseDouble(scanner.nextLine());
+
+        System.out.print("Enter quantity in stock: ");
+        int quantity = Integer.parseInt(scanner.nextLine());
+
+        GymMerchDAO.createGymMerchandise(type.getId(), name, price, quantity);
+        System.out.println("Merchandise added successfully.");
     }
 
-    System.out.print("Enter merchandise name: ");
-    String name = scanner.nextLine();
+    private static void editMerchandise(Scanner scanner) {
+        System.out.print("Enter the ID of the merchandise to edit: ");
+        int id = Integer.parseInt(scanner.nextLine());
 
-    System.out.print("Enter merchandise price: ");
-    double price = Double.parseDouble(scanner.nextLine());
+        GymMerchandise merch = GymMerchDAO.getGymMerchandiseById(id);
+        if (merch == null) {
+            System.out.println("Merchandise not found.");
+            return;
+        }
 
-    System.out.print("Enter quantity in stock: ");
-    int quantity = Integer.parseInt(scanner.nextLine());
+        System.out.println("Editing: " + merch.getMerchandiseName());
 
-    GymMerchDAO.createGymMerchandise(type.getId(), name, price, quantity);
-    System.out.println("Merchandise added successfully.");
-}
+        System.out.print("Enter new name (leave blank to keep \"" + merch.getMerchandiseName() + "\"): ");
+        String newName = scanner.nextLine();
+        if (!newName.trim().isEmpty()) {
+            merch.setMerchandiseName(newName);
+        }
 
-private static void editMerchandise(Scanner scanner) {
-    System.out.print("Enter the ID of the merchandise to edit: ");
-    int id = Integer.parseInt(scanner.nextLine());
+        System.out.print("Enter new price (leave blank to keep $" + merch.getMerchandisePrice() + "): ");
+        String newPrice = scanner.nextLine();
+        if (!newPrice.trim().isEmpty()) {
+            merch.setMerchandisePrice(Double.parseDouble(newPrice));
+        }
 
-    GymMerchandise merch = GymMerchDAO.getGymMerchandiseById(id);
-    if (merch == null) {
-        System.out.println("Merchandise not found.");
-        return;
+        System.out.print("Enter new quantity (leave blank to keep " + merch.getQuantityInStock() + "): ");
+        String newQty = scanner.nextLine();
+        if (!newQty.trim().isEmpty()) {
+            merch.setQuantityInStock(Integer.parseInt(newQty));
+        }
+
+        GymMerchDAO.updateGymMerchandise(merch);
+        System.out.println("Merchandise updated successfully.");
     }
 
-    System.out.println("Editing: " + merch.getMerchandiseName());
+    private static void deleteMerchandise(Scanner scanner) {
+        System.out.print("Enter the ID of the merchandise to delete: ");
+        int id = Integer.parseInt(scanner.nextLine());
 
-    System.out.print("Enter new name (leave blank to keep \"" + merch.getMerchandiseName() + "\"): ");
-    String newName = scanner.nextLine();
-    if (!newName.trim().isEmpty()) {
-        merch.setMerchandiseName(newName);
+        GymMerchDAO.deleteGymMerchandise(id);
+        System.out.println("Deleted (if item existed).");
     }
 
-    System.out.print("Enter new price (leave blank to keep $" + merch.getMerchandisePrice() + "): ");
-    String newPrice = scanner.nextLine();
-    if (!newPrice.trim().isEmpty()) {
-        merch.setMerchandisePrice(Double.parseDouble(newPrice));
+    private static void printAllMerchandiseAndStockValue() {
+        ArrayList<GymMerchandise> allMerch = GymMerchDAO.getAllGymMerchandise();
+
+        System.out.println("\n--- All Merchandise ---");
+        double totalValue = 0.0;
+
+        for (GymMerchandise merch : allMerch) {
+            double itemTotal = merch.getMerchandisePrice() * merch.getQuantityInStock();
+            totalValue += itemTotal;
+
+            System.out.println("ID: " + merch.getId());
+            System.out.println("Name: " + merch.getMerchandiseName());
+            System.out.println("Type: " + merch.getMerchandiseType().getMerchandiseTypeName());
+            System.out.println("Price: $" + merch.getMerchandisePrice());
+            System.out.println("Quantity: " + merch.getQuantityInStock());
+            System.out.println("Item Total Value: $" + itemTotal);
+            System.out.println("-----------------------------");
+        }
+
+        System.out.println("Total Stock Value: $" + totalValue);
     }
 
-    System.out.print("Enter new quantity (leave blank to keep " + merch.getQuantityInStock() + "): ");
-    String newQty = scanner.nextLine();
-    if (!newQty.trim().isEmpty()) {
-        merch.setQuantityInStock(Integer.parseInt(newQty));
+    private static void printAllMerchandise() {
+        ArrayList<GymMerchandise> allMerch = GymMerchDAO.getAllGymMerchandise();
+
+        System.out.println("\n--- All Merchandise ---");
+
+        for (GymMerchandise merch : allMerch) {
+            System.out.println("Name: " + merch.getMerchandiseName());
+            System.out.println("Type: " + merch.getMerchandiseType().getMerchandiseTypeName());
+            System.out.println("Price: $" + merch.getMerchandisePrice());
+            System.out.println("-----------------------------");
+        }
     }
-
-    GymMerchDAO.updateGymMerchandise(merch);
-    System.out.println("Merchandise updated successfully.");
-}
-
-private static void deleteMerchandise(Scanner scanner) {
-    System.out.print("Enter the ID of the merchandise to delete: ");
-    int id = Integer.parseInt(scanner.nextLine());
-
-    GymMerchDAO.deleteGymMerchandise(id);
-    System.out.println("Deleted (if item existed).");
-}
-
-private static void printAllMerchandiseAndStockValue() {
-    ArrayList<GymMerchandise> allMerch = GymMerchDAO.getAllGymMerchandise();
-
-    System.out.println("\n--- All Merchandise ---");
-    double totalValue = 0.0;
-
-    for (GymMerchandise merch : allMerch) {
-        double itemTotal = merch.getMerchandisePrice() * merch.getQuantityInStock();
-        totalValue += itemTotal;
-
-        System.out.println("ID: " + merch.getId());
-        System.out.println("Name: " + merch.getMerchandiseName());
-        System.out.println("Type: " + merch.getMerchandiseType().getMerchandiseTypeName());
-        System.out.println("Price: $" + merch.getMerchandisePrice());
-        System.out.println("Quantity: " + merch.getQuantityInStock());
-        System.out.println("Item Total Value: $" + itemTotal);
-        System.out.println("-----------------------------");
-    }
-
-    System.out.println("Total Stock Value: $" + totalValue);
-}
 
 
 
@@ -411,7 +424,9 @@ private static void printAllMerchandiseAndStockValue() {
                     // Purchase membership
                     break;
                 case 4:
-                    // Show gym merch
+                    printAllMerchandise();
+                    System.out.println("\nPress ENTER to return to menu...");
+                    scanner.nextLine();
                     break;
                 case 5:
                     // Logout user
