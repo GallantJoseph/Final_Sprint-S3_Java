@@ -8,21 +8,6 @@
 
 package MainProgram;
 
-<<<<<<< Updated upstream
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Scanner;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.time.LocalDateTime;
-import GymMerchManagement.GymMerchDAO;
-import GymMerchandise.GymMerchandise;
-import GymMerchandise.MerchandiseTypes;
-import UserManagement.UserDAO;
-import UserManagement.UserService;
-=======
 
 import java.sql.*;
 import java.time.LocalDateTime;
@@ -37,7 +22,6 @@ import MembershipManagement.MembershipsDAO;
 import Memberships.*;
 
 import UserManagement.*;
->>>>>>> Stashed changes
 import Users.*;
 
 import WorkoutClassManagement.*;
