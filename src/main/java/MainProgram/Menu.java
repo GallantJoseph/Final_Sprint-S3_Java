@@ -8,6 +8,7 @@
 
 package MainProgram;
 
+<<<<<<< Updated upstream
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -21,11 +22,27 @@ import GymMerchandise.GymMerchandise;
 import GymMerchandise.MerchandiseTypes;
 import UserManagement.UserDAO;
 import UserManagement.UserService;
+=======
+
+import java.sql.*;
+import java.time.LocalDateTime;
+import java.util.*;
+
+import DBManager.DatabaseConnection;
+
+import GymMerchManagement.GymMerchDAO;
+import GymMerchandise.*;
+
+import MembershipManagement.MembershipsDAO;
+import Memberships.*;
+
+import UserManagement.*;
+>>>>>>> Stashed changes
 import Users.*;
-import WorkoutClassManagement.WorkoutClassTypesDAO;
-import WorkoutClassManagement.WorkoutClassesDAO;
-import WorkoutClasses.WorkoutClass;
-import WorkoutClasses.WorkoutClassType;
+
+import WorkoutClassManagement.*;
+import WorkoutClasses.*;
+
 
 public class Menu {
     public static void mainMenu(Scanner scanner, ArrayList<Role> roles, User loggedUser){
