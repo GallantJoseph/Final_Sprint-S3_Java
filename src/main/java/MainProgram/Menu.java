@@ -8,24 +8,39 @@
 
 package MainProgram;
 
-
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 import DBManager.DatabaseConnection;
+
 import GymMerchManagement.GymMerchDAO;
 import GymMerchandise.GymMerchandise;
 import GymMerchandise.MerchandiseTypes;
+
 import MembershipManagement.MembershipsDAO;
 import Memberships.Membership;
 import Memberships.MembershipType;
+
 import UserManagement.UserDAO;
 import UserManagement.UserService;
 import Users.*;
+
 import WorkoutClassManagement.WorkoutClassTypesDAO;
 import WorkoutClassManagement.WorkoutClassesDAO;
 import WorkoutClasses.WorkoutClass;
 import WorkoutClasses.WorkoutClassType;
+
+import Users.*;
+
+import WorkoutClassManagement.*;
+import WorkoutClasses.*;
+
 
 public class Menu {
     public static void mainMenu(Scanner scanner, ArrayList<Role> roles, User loggedUser){
