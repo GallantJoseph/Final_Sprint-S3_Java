@@ -12,7 +12,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Period;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -43,12 +46,28 @@ import WorkoutClasses.*;
 
 
 public class Menu {
+
+    private static final Scanner scanner = new Scanner(System.in);
+
+    public static void enterToContinue() {
+        System.out.print("Press Enter to continue...");
+        scanner.nextLine();
+    }
+
+    public static void clearConsole() {
+        System.out.print("\033[H\033[2J");
+        System.out.flush();
+    }
+    
+
     public static void mainMenu(Scanner scanner, ArrayList<Role> roles, User loggedUser){
         int option = 0;
         final int QUIT_OPTION = 3;
+        ;
 
         // If no user is logged in. Show Login/Registration
         do {
+            clearConsole();
             if (loggedUser == null) {
                 // Header
                 System.out.println("Welcome to the Gym Management System\nPlease make a selection:\n");
@@ -74,6 +93,7 @@ public class Menu {
                         break;
                     default:
                         System.out.println("Invalid option. Please try again.");
+                        enterToContinue();
                 }
             } else{
                 String roleName = null;
@@ -96,6 +116,7 @@ public class Menu {
                         break;
                     default:
                         System.out.println("Unrecognized role.");
+                        enterToContinue();
                 }
 
             }
@@ -115,7 +136,7 @@ public class Menu {
         String phoneNumber = null;
         String roleName = null;
         Role role = null;
-
+        clearConsole();
         // Header
         System.out.println("\nPlease enter your details to register:\n");
 
@@ -163,6 +184,7 @@ public class Menu {
 
             if (role == null) {
                 System.out.println("Invalid role. Please try again.");
+                enterToContinue();
             }
         } while (role == null);
 
@@ -177,7 +199,7 @@ public class Menu {
         String password = null;
 
         User user = null;
-
+        clearConsole();
         // Header
         System.out.println("Please enter your login credentials:\n");
 
@@ -197,8 +219,9 @@ public class Menu {
 private static User adminMenu(Scanner scanner, User loggedUser) {
     int option = 0;
     final int QUIT_OPTION = 5;
-
+        
     do {
+        clearConsole();
         System.out.println("\nWelcome " + loggedUser.getFirstName());
         System.out.println("Please choose an option:");
         System.out.println("1. View all users and contact information");
@@ -218,20 +241,23 @@ private static User adminMenu(Scanner scanner, User loggedUser) {
                     deleteUser(scanner);
                     break;
                 case 3:
-                    viewAllMembershipsAndRevenue();
+                    viewAllGymMembershipsAndTotalAnnualRevenue();
                     break;
                 case 4:
-                    merchManagementMenu(scanner); // already implemented by you
+                    merchManagementMenu(scanner);
                     break;
                 case 5:
                     System.out.println("Logging out...");
                     loggedUser = null;
+                    enterToContinue();
                     break;
                 default:
                     System.out.println("Invalid option. Please try again.");
+                    enterToContinue();
             }
         } catch (NumberFormatException e) {
             System.out.println("Invalid input. Please enter a number.");
+            enterToContinue();
         }
 
     } while (option != QUIT_OPTION);
@@ -247,28 +273,40 @@ private static void viewAllUsers() {
         Connection connection = DatabaseConnection.getConnection();
         PreparedStatement preparedStatement = connection.prepareStatement(SQL);
         ResultSet resultSet = preparedStatement.executeQuery();
+        System.out.println();
+        System.out.println("=== All Users and Contact Information ===");
 
-        System.out.println("\n=== All Users and Contact Information ===");
+        // Print header row with aligned columns
+        System.out.printf("%-8s %-15s %-20s %-30s %-15s %-40s %-10s%n",
+            "User ID", "Username", "Name", "Email", "Phone", "Address", "Role");
+        System.out.println("-----------------------------------------------------------------------------------------------------------------------------------------------");
 
         while (resultSet.next()) {
             int roleId = resultSet.getInt("role_id");
             Role userRole = roles.stream().filter(r -> r.getId() == roleId).findFirst().orElse(null);
 
-            System.out.println("User ID: " + resultSet.getInt("user_id"));
-            System.out.println("Username: " + resultSet.getString("username"));
-            System.out.println("Name: " + resultSet.getString("first_name") + " " + resultSet.getString("last_name"));
-            System.out.println("Email: " + resultSet.getString("email"));
-            System.out.println("Phone: " + resultSet.getString("phone"));
-            System.out.println("Address: " + resultSet.getString("street_address") + ", " +
-                    resultSet.getString("city") + ", " +
-                    resultSet.getString("province") + ", " +
-                    resultSet.getString("postal_code"));
-            System.out.println("Role: " + (userRole != null ? userRole.getName() : "Unknown"));
-            System.out.println("---------------------------------------------------");
-        }
+            int userId = resultSet.getInt("user_id");
+            String username = resultSet.getString("username");
+            String name = resultSet.getString("first_name") + " " + resultSet.getString("last_name");
+            String email = resultSet.getString("email");
+            String phone = resultSet.getString("phone");
 
+            String address = resultSet.getString("street_address") + ", " +
+                             resultSet.getString("city") + ", " +
+                             resultSet.getString("province") + ", " +
+                             resultSet.getString("postal_code");
+
+            String roleName = (userRole != null) ? userRole.getName() : "Unknown";
+
+            // Print one user per row
+            System.out.printf("%-8d %-15s %-20s %-30s %-15s %-40s %-10s%n",
+                    userId, username, name, email, phone, address, roleName);
+                
+        }
+enterToContinue();
     } catch (SQLException e) {
         System.out.println("Error retrieving users.");
+        enterToContinue();
         e.printStackTrace();
     }
 }
@@ -277,54 +315,87 @@ private static void deleteUser(Scanner scanner) {
     System.out.print("Enter user ID to delete: ");
     try {
         int userId = Integer.parseInt(scanner.nextLine());
-        ArrayList<Role> roles = UserDAO.getRoles();
-        User userToDelete = UserDAO.getUserById(userId, roles);
 
-        if (userToDelete != null) {
-            UserDAO.deleteUser(userToDelete);
-        } else {
-            System.out.println("User with ID " + userId + " not found.");
-        }
+        // Call DAO method that deletes user and their memberships by user ID
+        UserDAO.deleteUserAndMembershipsByUserId(userId);
+         enterToContinue();
 
     } catch (NumberFormatException e) {
         System.out.println("Invalid input. Please enter a valid number.");
+        enterToContinue();
     }
 }
 
-private static void viewAllMembershipsAndRevenue() {
+private static void viewAllGymMembershipsAndTotalAnnualRevenue() {
+    int currentYear = java.time.LocalDate.now().getYear();
     ArrayList<Role> roles = UserDAO.getRoles();
     ArrayList<Membership> memberships = MembershipsDAO.getAllMemberships(roles);
 
     if (memberships.isEmpty()) {
         System.out.println("No memberships found.");
+        enterToContinue();
         return;
     }
 
-    double totalRevenue = 0.0;
+    double totalAnnualRevenue = 0.0;
 
-    System.out.println("\n========== All Gym Memberships ==========");
+    // Print the header row with column titles
+    System.out.printf("%-15s %-20s %-20s %-12s %-12s %-15s %-22s%n",
+        "Membership ID", "Member Name", "Membership Type", "Start Date", "End Date", "Monthly Cost", "Active Months This Year");
+    System.out.println("-----------------------------------------------------------------------------------------------" +
+                       "----------------------------");
 
     for (Membership membership : memberships) {
         User member = membership.getMember();
         MembershipType type = membership.getMembershipType();
 
-        System.out.println("----------------------------------------");
-        System.out.println("Membership ID: " + membership.getMembershipId());
-        System.out.println("Member Name: " + member.getFirstName() + " " + member.getLastName());
-        System.out.println("Membership Type: " + type.getName());
-        System.out.println("Description: " + type.getDescription());
-        System.out.println("Start Date: " + membership.getStartDate());
-        System.out.println("End Date: " + (membership.getEndDate() != null ? membership.getEndDate() : "Ongoing"));
-        System.out.println("Cost: $" + String.format("%.2f", type.getCost()));
+        double monthlyCost = type.getCost();
 
-        totalRevenue += type.getCost();
+        java.time.LocalDate startDate = membership.getStartDate();
+        java.time.LocalDate endDate = membership.getEndDate();
+
+        if (endDate == null) {
+            endDate = java.time.LocalDate.of(currentYear, 12, 31);
+        }
+
+        java.time.LocalDate yearStart = java.time.LocalDate.of(currentYear, 1, 1);
+        java.time.LocalDate yearEnd = java.time.LocalDate.of(currentYear, 12, 31);
+
+        if (startDate.isAfter(yearEnd) || endDate.isBefore(yearStart)) {
+            continue;
+        }
+
+        java.time.LocalDate effectiveStart = (startDate.isBefore(yearStart)) ? yearStart : startDate;
+        java.time.LocalDate effectiveEnd = (endDate.isAfter(yearEnd)) ? yearEnd : endDate;
+
+        int activeMonths = java.time.Period.between(
+            effectiveStart.withDayOfMonth(1),
+            effectiveEnd.withDayOfMonth(1)
+        ).getMonths() + 1;
+
+        totalAnnualRevenue += activeMonths * monthlyCost;
+
+        String endDateDisplay = (membership.getEndDate() != null) ? membership.getEndDate().toString() : "Ongoing";
+
+        // Print membership details in aligned columns
+        System.out.printf("%-15d %-20s %-20s %-12s %-12s $%-14.2f %-22d%n",
+            membership.getMembershipId(),
+            member.getFirstName() + " " + member.getLastName(),
+            type.getName(),
+            startDate.toString(),
+            endDateDisplay,
+            monthlyCost,
+            activeMonths);
     }
 
-    System.out.println("========================================");
-    System.out.printf("Total Revenue from All Memberships: $%.2f%n", totalRevenue);
+    System.out.println("-----------------------------------------------------------------------------------------------" +
+                       "----------------------------");
+    System.out.printf("Total Annual Revenue for %d: $%.2f%n", currentYear, totalAnnualRevenue);
+    enterToContinue();
 }
 
-    public static void merchManagementMenu(Scanner scanner) {
+public static void merchManagementMenu(Scanner scanner) {
+        clearConsole();
     while (true) {
         System.out.println("\nMerchandise Management Menu");
         System.out.println("1. Add new merchandise");
@@ -402,6 +473,7 @@ private static void viewAllMembershipsAndRevenue() {
         GymMerchandise merch = GymMerchDAO.getGymMerchandiseById(id);
         if (merch == null) {
             System.out.println("Merchandise not found.");
+            enterToContinue();
             return;
         }
 
@@ -427,6 +499,7 @@ private static void viewAllMembershipsAndRevenue() {
 
         GymMerchDAO.updateGymMerchandise(merch);
         System.out.println("Merchandise updated successfully.");
+        enterToContinue();
     }
 
     private static void deleteMerchandise(Scanner scanner) {
@@ -437,27 +510,35 @@ private static void viewAllMembershipsAndRevenue() {
         System.out.println("Deleted (if item existed).");
     }
 
-    private static void printAllMerchandiseAndStockValue() {
-        ArrayList<GymMerchandise> allMerch = GymMerchDAO.getAllGymMerchandise();
+private static void printAllMerchandiseAndStockValue() {
+    ArrayList<GymMerchandise> allMerch = GymMerchDAO.getAllGymMerchandise();
+    System.out.println();
+    System.out.println("                                === All Merchandise ===");
+    System.out.println();
+        System.out.println();
+    System.out.printf("%5s  %-25s %-20s %10s %10s %15s%n",
+        "ID", "Name", "Type", "Price", "Quantity", "Item Value");
+    System.out.println("--------------------------------------------------------------------------------------------");
 
-        System.out.println("\n--- All Merchandise ---");
-        double totalValue = 0.0;
+    double totalValue = 0.0;
 
-        for (GymMerchandise merch : allMerch) {
-            double itemTotal = merch.getMerchandisePrice() * merch.getQuantityInStock();
-            totalValue += itemTotal;
+    for (GymMerchandise merch : allMerch) {
+        double itemTotal = merch.getMerchandisePrice() * merch.getQuantityInStock();
+        totalValue += itemTotal;
 
-            System.out.println("ID: " + merch.getId());
-            System.out.println("Name: " + merch.getMerchandiseName());
-            System.out.println("Type: " + merch.getMerchandiseType().getMerchandiseTypeName());
-            System.out.println("Price: $" + merch.getMerchandisePrice());
-            System.out.println("Quantity: " + merch.getQuantityInStock());
-            System.out.println("Item Total Value: $" + itemTotal);
-            System.out.println("-----------------------------");
-        }
-
-        System.out.println("Total Stock Value: $" + totalValue);
+        System.out.printf("%5d  %-25s %-20s %10.2f %10d %15.2f%n",
+            merch.getId(),
+            merch.getMerchandiseName(),
+            merch.getMerchandiseType().getMerchandiseTypeName(),
+            merch.getMerchandisePrice(),
+            merch.getQuantityInStock(),
+            itemTotal);
     }
+
+    System.out.println("--------------------------------------------------------------------------------------------");
+    System.out.printf("%-75s %15.2f%n", "Total Stock Value:", totalValue);
+    enterToContinue();
+}
 
     private static void printAllMerchandise() {
         ArrayList<GymMerchandise> allMerch = GymMerchDAO.getAllGymMerchandise();
@@ -470,15 +551,15 @@ private static void viewAllMembershipsAndRevenue() {
             System.out.println("Price: $" + merch.getMerchandisePrice());
             System.out.println("-----------------------------");
         }
+        enterToContinue();
     }
-
-
 
     private static User trainerMenu(Scanner scanner, User loggedUser, ArrayList<Role> roles) {
         int option = 0;
         final int QUIT_OPTION = 4;
 
         do {
+            clearConsole();
             // Header
             System.out.println("\nWelcome, " + loggedUser.getFirstName() + "\nPlease make a selection:\n");
 
@@ -506,6 +587,7 @@ private static void viewAllMembershipsAndRevenue() {
                     break;
                 default:
                     System.out.println("Invalid option. Please try again.");
+                    enterToContinue();
             }
 
         } while (option != QUIT_OPTION);
@@ -516,7 +598,9 @@ private static void viewAllMembershipsAndRevenue() {
     private static User memberMenu(Scanner scanner, User loggedUser, ArrayList<Role> roles) {
         int option;
         final int QUIT_OPTION = 5;
+
         do {
+        clearConsole();
             //Header
             System.out.println("Welcome " + loggedUser.getFirstName() + "\nPlease make a selection:\n");
 
@@ -552,9 +636,11 @@ private static void viewAllMembershipsAndRevenue() {
                     // Logout user
                     System.out.println("Logging out...");
                     loggedUser = null; // Clear the logged user
+                    enterToContinue();
                     break;
                 default:
                     System.out.println("Invalid option. Please try again.");
+                    enterToContinue();
             }
 
         } while (option != QUIT_OPTION);
@@ -567,6 +653,7 @@ private static void viewAllMembershipsAndRevenue() {
         final int QUIT_OPTION = 5;
 
         do {
+        clearConsole();
             // Header
             System.out.println("\nWorkout Class Management Menu\nPlease make a selection:\n");
 
@@ -604,6 +691,7 @@ private static void viewAllMembershipsAndRevenue() {
                     break;
                 default:
                     System.out.println("Invalid option. Please try again.");
+                    enterToContinue();
             }
         } while (option != QUIT_OPTION);
     }
@@ -613,6 +701,7 @@ private static void viewAllMembershipsAndRevenue() {
 
         if (workoutClasses.isEmpty()) {
             System.out.println("\nNo workout classes available.");
+            enterToContinue();
         } else {
             // Print all workout classes
             System.out.println("\nAvailable workout classes:");
@@ -626,6 +715,7 @@ private static void viewAllMembershipsAndRevenue() {
                 System.out.println("Date and time: " + workoutClass.getDateTime());
                 System.out.println("-------------------------------");
             }
+            enterToContinue();
         }
     }
 
@@ -634,6 +724,7 @@ private static void viewAllMembershipsAndRevenue() {
 
         if (workoutClasses.isEmpty()) {
             System.out.println("\nNo workout classes for trainer " + trainer.getFullName() + ".");
+            enterToContinue();
         } else {
             // Print all workout classes
             System.out.println("\nWorkout classes of " + trainer.getFullName() + ":");
@@ -646,6 +737,7 @@ private static void viewAllMembershipsAndRevenue() {
                 System.out.println("Date and time: " + workoutClass.getDateTime());
                 System.out.println("-------------------------------");
             }
+            enterToContinue();
         }
     }
 
@@ -673,6 +765,7 @@ private static void viewAllMembershipsAndRevenue() {
                     workoutClassType = WorkoutClassTypesDAO.getWorkoutClassType(workoutClassTypeId);
                 } catch (Exception e) {
                     System.out.println("Error while retrieving the workout class types.");
+                    enterToContinue();
                     // TODO Log the error
                     e.printStackTrace();
                 }
@@ -684,6 +777,7 @@ private static void viewAllMembershipsAndRevenue() {
 
                     if (workoutClassTypes.isEmpty()) {
                         System.out.println("No workout class types available.");
+                        enterToContinue();
                     } else {
                         System.out.println("\nAvailable workout class types:");
                         System.out.println("-------------------------------");
@@ -694,9 +788,12 @@ private static void viewAllMembershipsAndRevenue() {
                             System.out.println("Description: " + wct.getDescription());
                             System.out.println("-------------------------------");
                         }
+                        enterToContinue();
                     }
                 } else {
-                    System.out.println("Invalid input. Please enter a valid Workout Class Type ID or \"l\" to list the types.");
+                    System.out.println(
+                            "Invalid input. Please enter a valid Workout Class Type ID or \"l\" to list the types.");
+                    enterToContinue();
                 }
             }
         } while (workoutClassType == null);
@@ -716,6 +813,7 @@ private static void viewAllMembershipsAndRevenue() {
                 break;
             } catch (Exception e) {
                 System.out.println("Invalid date format. Please enter the date in YYYY-MM-DD format.");
+                enterToContinue();
             }
         }
 
@@ -730,6 +828,7 @@ private static void viewAllMembershipsAndRevenue() {
                 break;
             } catch (Exception e) {
                 System.out.println("Invalid time format. Please enter the time in HH:MM format.");
+                enterToContinue();
             }
         }
 
@@ -738,8 +837,10 @@ private static void viewAllMembershipsAndRevenue() {
             WorkoutClassesDAO.createWorkoutClass(workoutClassType.getId(), description, loggedUser.getUserId(), dateTime);
 
             System.out.println("Workout class created successfully.\n");
+            enterToContinue();
         } catch (Exception e) {
             System.out.println("Error while creating the workout class.\n");
+            enterToContinue();
             // TODO Log the error
             e.printStackTrace();
         }
@@ -766,10 +867,12 @@ private static void viewAllMembershipsAndRevenue() {
 
             if (workoutClass == null) {
                 System.out.println("No workout class found with ID: " + workoutClassId);
+                enterToContinue();
                 return; // Exit if the workout class cannot be found
             }
         } catch (Exception e) {
             System.out.println("\nError while retrieving the workout class.\n");
+            enterToContinue();
             // TODO Log the error
             e.printStackTrace();
             return; // Exit if the workout class cannot be found
@@ -797,8 +900,10 @@ private static void viewAllMembershipsAndRevenue() {
 
                 // Print success message
                 System.out.println("\nWorkout class type created successfully with ID: " + workoutTypeId);
+                enterToContinue();
             } catch (Exception e) {
                 System.out.println("\nError while creating the workout class type.\n");
+                enterToContinue();
                 // TODO Log the error
                 e.printStackTrace();
                 return;
@@ -810,8 +915,10 @@ private static void viewAllMembershipsAndRevenue() {
                     workoutClass.getDescription(), loggedUser.getUserId(), LocalDateTime.now());
 
             System.out.println("\nWorkout class updated successfully.\n");
+            enterToContinue();
         } catch (Exception e) {
             System.out.println("\nError while updating the workout class.\n");
+            enterToContinue();
             // TODO Log the error
             e.printStackTrace();
         }
@@ -831,12 +938,15 @@ private static void viewAllMembershipsAndRevenue() {
             // Check if any rows were deleted
             if (deletedRows == 0) {
                 System.out.println("No Workout Class found with ID: " + workoutClassId);
+                enterToContinue();
             } else {
                 // If the deletion was successful, print a success message
                 System.out.println("Workout Class with ID: " + workoutClassId + " deleted successfully.");
+                enterToContinue();
             }
         } catch (Exception e) {
             System.out.println("Error while deleting the workout class.");
+            enterToContinue();
             // TODO Log the error
             e.printStackTrace();
         }
