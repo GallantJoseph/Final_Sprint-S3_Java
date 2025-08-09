@@ -1,10 +1,9 @@
 package UserManagement;
 
+import Logging.LoggingManagement;
 import Users.Role;
 import Users.User;
 import org.mindrot.jbcrypt.BCrypt;
-
-import java.io.IOException;
 import java.util.ArrayList;
 
 public class UserService {
@@ -14,19 +13,21 @@ public class UserService {
 
             if (user != null) {
                 if (BCrypt.checkpw(password, user.getPassword())) {
+                    LoggingManagement.log("Login successful for user: " + username, false);
                     return user;
                 } else {
-                    //TODO Log the error
                     System.out.println("Invalid Credentials. Please try again.");
                 }
             } else {
-                //TODO Log the error
                 System.out.println("Invalid Credentials. Please try again.");
             }
-        //} catch (IOException e) {
+
+            LoggingManagement.log("Login attempt failed for user: " + username, false);
+
         } catch (Exception e) {
-            //TODO Log the error
-            e.printStackTrace();
+            String errorMessage = "Error while logging in user: " + username;
+            System.out.println(errorMessage);
+            LoggingManagement.log(errorMessage + ": " + e.getMessage(), true);
         }
 
         return null; // Return null if login fails
@@ -38,10 +39,12 @@ public class UserService {
 
             int newUserId = UserDAO.createUser(user);
             System.out.println("User " + user.getUsername() + " registered successfully with ID: " + newUserId);
+            LoggingManagement.log("New user registered with ID: " + newUserId + " and username: " + user.getUsername(), false);
 
         } catch (Exception e) {
-            //TODO Log the error
-            System.out.println("Error while registering the new user: " + e.getMessage());
+            String errorMessage = "Error while registering the new user.";
+            System.out.println(errorMessage);
+            LoggingManagement.log(errorMessage + ": " + e.getMessage(), true);
         }
     }
 }

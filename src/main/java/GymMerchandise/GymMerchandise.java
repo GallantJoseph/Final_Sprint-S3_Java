@@ -5,9 +5,9 @@ public class GymMerchandise {
     private String merchandiseName;
     private double merchandisePrice;
     private int quantityInStock;
-    private MerchandiseTypes merchandiseType;
+    private MerchandiseType merchandiseType;
 
-    public GymMerchandise(int id, String merchandiseName, double merchandisePrice, int quantityInStock, MerchandiseTypes merchandiseType) {
+    public GymMerchandise(int id, String merchandiseName, double merchandisePrice, int quantityInStock, MerchandiseType merchandiseType) {
         this.id = id;
         this.merchandiseName = merchandiseName;
         this.merchandisePrice = merchandisePrice;
@@ -47,11 +47,11 @@ public class GymMerchandise {
         this.quantityInStock = quantityInStock;
     }
 
-    public MerchandiseTypes getMerchandiseType() {
+    public MerchandiseType getMerchandiseType() {
         return merchandiseType;
     }
 
-    public void setMerchandiseType(MerchandiseTypes merchandiseType) {
+    public void setMerchandiseType(MerchandiseType merchandiseType) {
         this.merchandiseType = merchandiseType;
     }
 }
