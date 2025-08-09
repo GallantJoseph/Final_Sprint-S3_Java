@@ -8,13 +8,22 @@
 
 package MainProgram;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
+import DBManager.DatabaseConnection;
 import GymMerchManagement.GymMerchDAO;
 import GymMerchandise.GymMerchandise;
 import GymMerchandise.MerchandiseType;
 import Logging.LoggingManagement;
+import MembershipManagement.MembershipsDAO;
+import Memberships.Membership;
+import Memberships.MembershipType;
 import UserManagement.UserDAO;
 import UserManagement.UserService;
 import Users.*;
@@ -22,6 +31,10 @@ import WorkoutClassManagement.WorkoutClassTypesDAO;
 import WorkoutClassManagement.WorkoutClassesDAO;
 import WorkoutClasses.WorkoutClass;
 import WorkoutClasses.WorkoutClassType;
+import Users.*;
+import WorkoutClassManagement.*;
+import WorkoutClasses.*;
+
 
 public class Menu {
     public static void mainMenu(Scanner scanner, ArrayList<Role> roles, User loggedUser){
@@ -175,42 +188,35 @@ public class Menu {
         return user;
     }
 
-    private static User adminMenu(Scanner scanner, User loggedUser) {
-        int option = 0;
-        final int QUIT_OPTION = 5;
+private static User adminMenu(Scanner scanner, User loggedUser) {
+    int option = 0;
+    final int QUIT_OPTION = 5;
 
-        do {
-            System.out.println("Welcome " + loggedUser.getFirstName());
-            System.out.println("Please choose an option:");
-            System.out.println("1. View all users and contact information");
-            System.out.println("2. Delete a user");
-            System.out.println("3. View all gym memberships and total revenue");
-            System.out.println("4. Merchandise Management");
-            System.out.println("5. Logout");
+    do {
+        System.out.println("\nWelcome " + loggedUser.getFirstName());
+        System.out.println("Please choose an option:");
+        System.out.println("1. View all users and contact information");
+        System.out.println("2. Delete a user");
+        System.out.println("3. View all gym memberships and total revenue");
+        System.out.println("4. Merchandise Management");
+        System.out.println("5. Logout");
 
-            option = scanner.nextInt();
-            scanner.nextLine();
+        try {
+            option = Integer.parseInt(scanner.nextLine());
 
             switch (option) {
                 case 1:
-                    System.out.println("Viewing all users and contact information... under constuction");
+                    viewAllUsers();
                     break;
-
                 case 2:
-                    System.out.print("Enter username of user to delete: ");
-                    String usernameToDelete = scanner.nextLine();
-                    System.out.println("[Attempting to delete user... under constuction]");
+                    deleteUser(scanner);
                     break;
-
                 case 3:
-                    System.out.println("[Viewing all gym memberships and calculating revenue... under constuction]");
+                    viewAllMembershipsAndRevenue();
                     break;
-
                 case 4:
-                    System.out.println("merchManagementMenu ...under constuction");
-                    merchManagementMenu(scanner);
+                    merchManagementMenu(scanner); // already implemented by you
                     break;
-
                 case 5:
                     System.out.println("\nLogging out...\n");
                     loggedUser = null; // Clear the logged user
@@ -218,11 +224,99 @@ public class Menu {
                 default:
                     System.out.println("Invalid option. Please try again.");
             }
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid input. Please enter a number.");
+        }
 
-        } while (option != QUIT_OPTION);
+    } while (option != QUIT_OPTION);
 
-        return loggedUser;
+    return loggedUser;
+}
+
+private static void viewAllUsers() {
+    ArrayList<Role> roles = UserDAO.getRoles();
+    final String SQL = "SELECT * FROM users";
+
+    try {
+        Connection connection = DatabaseConnection.getConnection();
+        PreparedStatement preparedStatement = connection.prepareStatement(SQL);
+        ResultSet resultSet = preparedStatement.executeQuery();
+
+        System.out.println("\n=== All Users and Contact Information ===");
+
+        while (resultSet.next()) {
+            int roleId = resultSet.getInt("role_id");
+            Role userRole = roles.stream().filter(r -> r.getId() == roleId).findFirst().orElse(null);
+
+            System.out.println("User ID: " + resultSet.getInt("user_id"));
+            System.out.println("Username: " + resultSet.getString("username"));
+            System.out.println("Name: " + resultSet.getString("first_name") + " " + resultSet.getString("last_name"));
+            System.out.println("Email: " + resultSet.getString("email"));
+            System.out.println("Phone: " + resultSet.getString("phone"));
+            System.out.println("Address: " + resultSet.getString("street_address") + ", " +
+                    resultSet.getString("city") + ", " +
+                    resultSet.getString("province") + ", " +
+                    resultSet.getString("postal_code"));
+            System.out.println("Role: " + (userRole != null ? userRole.getName() : "Unknown"));
+            System.out.println("---------------------------------------------------");
+        }
+
+    } catch (SQLException e) {
+        System.out.println("Error retrieving users.");
+        e.printStackTrace();
     }
+}
+
+private static void deleteUser(Scanner scanner) {
+    System.out.print("Enter user ID to delete: ");
+    try {
+        int userId = Integer.parseInt(scanner.nextLine());
+        ArrayList<Role> roles = UserDAO.getRoles();
+        User userToDelete = UserDAO.getUserById(userId, roles);
+
+        if (userToDelete != null) {
+            UserDAO.deleteUser(userToDelete);
+        } else {
+            System.out.println("User with ID " + userId + " not found.");
+        }
+
+    } catch (NumberFormatException e) {
+        System.out.println("Invalid input. Please enter a valid number.");
+    }
+}
+
+private static void viewAllMembershipsAndRevenue() {
+    ArrayList<Role> roles = UserDAO.getRoles();
+    ArrayList<Membership> memberships = MembershipsDAO.getAllMemberships(roles);
+
+    if (memberships.isEmpty()) {
+        System.out.println("No memberships found.");
+        return;
+    }
+
+    double totalRevenue = 0.0;
+
+    System.out.println("\n========== All Gym Memberships ==========");
+
+    for (Membership membership : memberships) {
+        User member = membership.getMember();
+        MembershipType type = membership.getMembershipType();
+
+        System.out.println("----------------------------------------");
+        System.out.println("Membership ID: " + membership.getMembershipId());
+        System.out.println("Member Name: " + member.getFirstName() + " " + member.getLastName());
+        System.out.println("Membership Type: " + type.getName());
+        System.out.println("Description: " + type.getDescription());
+        System.out.println("Start Date: " + membership.getStartDate());
+        System.out.println("End Date: " + (membership.getEndDate() != null ? membership.getEndDate() : "Ongoing"));
+        System.out.println("Cost: $" + String.format("%.2f", type.getCost()));
+
+        totalRevenue += type.getCost();
+    }
+
+    System.out.println("========================================");
+    System.out.printf("Total Revenue from All Memberships: $%.2f%n", totalRevenue);
+}
 
     public static void merchManagementMenu(Scanner scanner) {
     while (true) {
