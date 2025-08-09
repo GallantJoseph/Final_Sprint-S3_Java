@@ -22,8 +22,10 @@ public class LoggingManagement {
         try {
             writer = new BufferedWriter(new FileWriter(isError ? ERROR_FILE_PATH : INFO_FILE_PATH, true));
 
-            writer.write("Error: " + message);
+            writer.write(message);
             writer.newLine();
+
+            writer.close();
         } catch (IOException e) {
             System.out.println("Failed to initialize logger: " + e.getMessage());
             throw new RuntimeException(e);

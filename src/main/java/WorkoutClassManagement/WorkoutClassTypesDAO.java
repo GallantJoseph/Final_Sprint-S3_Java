@@ -3,7 +3,6 @@ package WorkoutClassManagement;
 import DBManager.DatabaseConnection;
 import Logging.LoggingManagement;
 import WorkoutClasses.WorkoutClassType;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -26,14 +25,27 @@ public class WorkoutClassTypesDAO {
             // Retrieve the generated ID of the new workout class type
             ResultSet generatedKeys = preparedStatement.getGeneratedKeys();
             if (generatedKeys.next()) {
-                return generatedKeys.getInt(1); // Return the ID of the newly created workout class type
+                // Get the generated ID of the new workout class type
+                int newWorkoutClassTypeId = generatedKeys.getInt(1);
+
+                // Log the successful addition of the new workout class type
+                LoggingManagement.log("New workout class type added with ID: " + newWorkoutClassTypeId + " and name: " + name, false);
+
+                // Return the ID of the newly created workout class type
+                return newWorkoutClassTypeId;
+            } else {
+                String errorMessage = "No ID was generated for the new workout class type.";
+
+                System.out.println(errorMessage);
+                LoggingManagement.log(errorMessage, true);
             }
         } catch (SQLException e) {
-            System.out.println("Error while adding the new workout class type.");
-            LoggingManagement.log(e.getMessage(), true);
+            String errorMessage = "Error while adding the new workout class type.";
+
+            System.out.println(errorMessage);
+            LoggingManagement.log(errorMessage + ": " + e.getMessage(), true);
         }
 
-        System.out.println("No ID was generated for the new workout class type.");
         return -1; // Return -1 to indicate failure
     }
 
@@ -58,8 +70,10 @@ public class WorkoutClassTypesDAO {
                 System.out.println("No workout class type found with ID: " + workoutClassTypeId);
             }
         } catch (SQLException e) {
-            System.out.println("Error while retrieving the workout class type.");
-            LoggingManagement.log(e.getMessage(), true);
+            String errorMessage = "Error while retrieving the workout class type with ID: " + workoutClassTypeId;
+
+            System.out.println(errorMessage);
+            LoggingManagement.log(errorMessage + ": " + e.getMessage(), true);
         }
 
         return workoutClassType;
@@ -85,8 +99,10 @@ public class WorkoutClassTypesDAO {
                 workoutClassTypes.add(workoutClassType);
             }
         } catch (SQLException e) {
-            System.out.println("Error while retrieving the workout class types.");
-            LoggingManagement.log(e.getMessage(), true);
+            String errorMessage = "Error while retrieving all workout class types.";
+
+            System.out.println(errorMessage);
+            LoggingManagement.log(errorMessage + ": " + e.getMessage(), true);
         }
 
         return workoutClassTypes;
@@ -105,13 +121,16 @@ public class WorkoutClassTypesDAO {
 
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
-            System.out.println("Error while updating the workout class type.");
-            LoggingManagement.log(e.getMessage(), true);
+            String errorMessage = "Error while updating the workout class type with ID: " + workoutClassTypeId;
+
+            System.out.println(errorMessage);
+            LoggingManagement.log(errorMessage + ": " + e.getMessage(), true);
         }
     }
 
-    public static void deleteWorkoutClassType(int workoutClassTypeId){
+    public static int deleteWorkoutClassType(int workoutClassTypeId){
         final String SQL = "DELETE FROM workout_class_types WHERE workout_class_type_id = ?";
+        int affectedRows = 0;
 
         try {
             Connection connection = DatabaseConnection.getConnection();
@@ -119,10 +138,22 @@ public class WorkoutClassTypesDAO {
 
             preparedStatement.setInt(1, workoutClassTypeId);
 
-            preparedStatement.executeUpdate();
+            affectedRows = preparedStatement.executeUpdate();
+
+            if (affectedRows == 0) {
+                String errorMessage = "No workout class type found with ID: " + workoutClassTypeId;
+                System.out.println(errorMessage);
+                LoggingManagement.log(errorMessage, true);
+            } else {
+                LoggingManagement.log("Workout class type with ID: " + workoutClassTypeId + " deleted successfully.", false);
+            }
         } catch (SQLException e) {
-            System.out.println("Error while deleting the workout class type. There might be workout classes associated with this type.");
-            LoggingManagement.log(e.getMessage(), true);
+            String errorMessage = "Error while deleting the workout class type with ID: " + workoutClassTypeId + ". There might be workout classes associated with this type.";
+
+            System.out.println(errorMessage);
+            LoggingManagement.log(errorMessage + ": " + e.getMessage(), true);
         }
+
+        return affectedRows;
     }
 }

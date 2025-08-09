@@ -12,22 +12,40 @@ import java.util.ArrayList;
 
 public class MembershipTypesDAO {
 
-    public static void createMembershipType(String name, String description, double cost) {
+    public static int createMembershipType(String name, String description, double cost) {
         final String SQL = "INSERT INTO membership_types (mem_type_name, mem_type_description, mem_type_cost) VALUES (?, ?, ?)";
 
         try {
             Connection connection = DatabaseConnection.getConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement(SQL);
+            PreparedStatement preparedStatement = connection.prepareStatement(SQL, PreparedStatement.RETURN_GENERATED_KEYS);
 
             preparedStatement.setString(1, name);
             preparedStatement.setString(2, description);
             preparedStatement.setDouble(3, cost);
 
             preparedStatement.executeUpdate();
+            ResultSet generatedKeys = preparedStatement.getGeneratedKeys();
+
+            // Check if the membership type ID was generated
+            if (generatedKeys.next()) {
+                int newMembershipTypeId = generatedKeys.getInt(1); // Get the generated membership type ID
+                LoggingManagement.log("New membership type added with ID: " + newMembershipTypeId + " and name: " + name, false);
+
+                return newMembershipTypeId; // Return the generated membership type ID
+            } else {
+                String errorMessage = "No ID was generated for the new membership type.";
+                System.out.println(errorMessage);
+                LoggingManagement.log(errorMessage, true);
+            }
+
         } catch (SQLException e) {
-            System.out.println("Error while adding the new membership type.");
-            LoggingManagement.log(e.getMessage(), true);
+            String errorMessage = "Error while adding the new membership type.";
+
+            System.out.println(errorMessage);
+            LoggingManagement.log(errorMessage + ": " + e.getMessage(), true);
         }
+
+        return -1; // Return -1 to indicate failure
     }
 
     public static MembershipType getMembershipTypeById(int membershipTypeId) {
@@ -52,8 +70,10 @@ public class MembershipTypesDAO {
                 System.out.println("No membership type found with ID: " + membershipTypeId);
             }
         } catch (SQLException e) {
-            System.out.println("Error while retrieving the membership type.");
-            LoggingManagement.log(e.getMessage(), true);
+            String errorMessage = "Error while retrieving the membership type with ID: " + membershipTypeId;
+
+            System.out.println(errorMessage);
+            LoggingManagement.log(errorMessage + ": " + e.getMessage(), true);
         }
 
         return membershipType;
@@ -80,15 +100,18 @@ public class MembershipTypesDAO {
                 membershipTypes.add(membershipType);
             }
         } catch (SQLException e) {
-            System.out.println("Error while retrieving the membership types.");
-            LoggingManagement.log(e.getMessage(), true);
+            String errorMessage = "Error while retrieving all membership types.";
+
+            System.out.println(errorMessage);
+            LoggingManagement.log(errorMessage + ": " + e.getMessage(), true);
         }
 
         return membershipTypes;
     }
 
-    public static void updateMembershipType(int membershipTypeId, String name, String description, double cost) {
+    public static int updateMembershipType(int membershipTypeId, String name, String description, double cost) {
         final String SQL = "UPDATE membership_types SET mem_type_name = ?, mem_type_description = ?, mem_type_cost = ? WHERE mem_type_id = ?";
+        int affectedRows = 0;
 
         try {
             Connection connection = DatabaseConnection.getConnection();
@@ -99,15 +122,27 @@ public class MembershipTypesDAO {
             preparedStatement.setDouble(3, cost);
             preparedStatement.setInt(4, membershipTypeId);
 
-            preparedStatement.executeUpdate();
+            affectedRows = preparedStatement.executeUpdate();
+
+            if(affectedRows == 0) {
+                LoggingManagement.log("No membership type found with ID: " + membershipTypeId, true);
+            } else {
+                LoggingManagement.log("Membership type with ID: " + membershipTypeId + " updated successfully.", false);
+            }
+
         } catch (SQLException e) {
-            System.out.println("Error while updating the membership type.");
-            LoggingManagement.log(e.getMessage(), true);
+            String errorMessage = "Error while updating the membership type with ID: " + membershipTypeId;
+
+            System.out.println(errorMessage);
+            LoggingManagement.log(errorMessage + ": " + e.getMessage(), true);
         }
+
+        return affectedRows;
     }
 
-    public static void deleteMembershipType(int membershipTypeId) {
+    public static int deleteMembershipType(int membershipTypeId) {
         final String SQL = "DELETE FROM membership_types WHERE mem_type_id = ?";
+        int affectedRows = 0;
 
         try {
             Connection connection = DatabaseConnection.getConnection();
@@ -115,10 +150,21 @@ public class MembershipTypesDAO {
 
             preparedStatement.setInt(1, membershipTypeId);
 
-            preparedStatement.executeUpdate();
+            affectedRows = preparedStatement.executeUpdate();
+
+            if (affectedRows == 0) {
+                LoggingManagement.log("No membership type found with ID: " + membershipTypeId, true);
+            } else {
+                LoggingManagement.log("Membership type with ID: " + membershipTypeId + " deleted successfully.", false);
+            }
+
         } catch (SQLException e) {
-            System.out.println("Error while deleting the membership type. There might be memberships associated with this type.");
-            LoggingManagement.log(e.getMessage(), true);
+            String errorMessage = "Error while deleting the membership type with ID: " + membershipTypeId;
+
+            System.out.println(errorMessage);
+            LoggingManagement.log(errorMessage + ": " + e.getMessage(), true);
         }
+
+        return affectedRows;
     }
 }

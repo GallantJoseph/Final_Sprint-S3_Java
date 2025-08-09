@@ -78,7 +78,6 @@ public class Menu {
                     default:
                         System.out.println("Unrecognized role.");
                 }
-
             }
         } while (option != QUIT_OPTION);
     }
@@ -100,6 +99,7 @@ public class Menu {
         // Header
         System.out.println("\nPlease enter your details to register:\n");
 
+        // TODO Validate user input for each field
         System.out.println("Please enter a username:");
         username = scanner.nextLine();
 
@@ -160,7 +160,7 @@ public class Menu {
         User user = null;
 
         // Header
-        System.out.println("Please enter your login credentials:\n");
+        System.out.println("\nPlease enter your login credentials:\n");
 
         do {
             System.out.println("Please enter your username:");
@@ -212,8 +212,8 @@ public class Menu {
                     break;
 
                 case 5:
-                    System.out.println("Logging out...");
-                    loggedUser = null;
+                    System.out.println("\nLogging out...\n");
+                    loggedUser = null; // Clear the logged user
                     break;
                 default:
                     System.out.println("Invalid option. Please try again.");
@@ -399,9 +399,11 @@ public class Menu {
                     break;
                 case 3:
                     printAllMerchandiseAndStockValue();
+                    System.out.print("\nPress Enter to continue...");
+                    scanner.nextLine();
                     break;
                 case 4:
-                    System.out.println("Logging out...");
+                    System.out.println("\nLogging out...\n");
                     loggedUser = null; // Clear the logged user
                     break;
                 default:
@@ -450,7 +452,7 @@ public class Menu {
                     break;
                 case 5:
                     // Logout user
-                    System.out.println("Logging out...");
+                    System.out.println("\nLogging out...\n");
                     loggedUser = null; // Clear the logged user
                     break;
                 default:
@@ -496,7 +498,7 @@ public class Menu {
                     scanner.nextLine();
                     break;
                 case 4:
-                    showTrainerWorkoutClasses(loggedUser, roles);
+                    showTrainerWorkoutClasses((Trainer) loggedUser, roles);
                     System.out.print("\nPress Enter to continue...");
                     scanner.nextLine();
                     break;
@@ -529,7 +531,7 @@ public class Menu {
         }
     }
 
-    private static void showTrainerWorkoutClasses(User trainer, ArrayList<Role> roles) {
+    private static void showTrainerWorkoutClasses(Trainer trainer, ArrayList<Role> roles) {
         ArrayList<WorkoutClass> workoutClasses = WorkoutClassesDAO.getWorkoutClasses(trainer.getUserId(),roles);
 
         if (workoutClasses.isEmpty()) {
@@ -569,11 +571,12 @@ public class Menu {
 
                 // Check if the Workout Class Type with this ID exists
                 try {
-                    //workoutClassType = new WorkoutClassType(1, "Yoga", "Yoga Exercises");
                     workoutClassType = WorkoutClassTypesDAO.getWorkoutClassType(workoutClassTypeId);
                 } catch (Exception e) {
-                    System.out.println("Error while retrieving the workout class types.");
-                    LoggingManagement.log(e.getMessage(), true);
+                    String errorMessage = "Error while retrieving the workout class type with ID: " + workoutClassTypeId;
+
+                    System.out.println(errorMessage);
+                    LoggingManagement.log(errorMessage + ": " + e.getMessage(), true);
                 }
             } else {
                 input = scanner.nextLine();
@@ -633,13 +636,14 @@ public class Menu {
         }
 
         try {
-            // TODO Return ID from createWorkoutClassType and display it to the user
-            WorkoutClassesDAO.createWorkoutClass(workoutClassType.getId(), description, loggedUser.getUserId(), dateTime);
+            int newWorkoutClassId = WorkoutClassesDAO.createWorkoutClass(workoutClassType.getId(), description, loggedUser.getUserId(), dateTime);
 
-            System.out.println("Workout class created successfully.\n");
+            System.out.println("Workout class with ID: " + newWorkoutClassId + " created successfully.\n");
         } catch (Exception e) {
-            System.out.println("Error while creating the workout class.\n");
-            LoggingManagement.log(e.getMessage(), true);
+            String errorMessage = "Error while creating the workout class.";
+
+            System.out.println(errorMessage);
+            LoggingManagement.log(errorMessage + ": " + e.getMessage(), true);
         }
     }
 
@@ -650,6 +654,9 @@ public class Menu {
         int workoutTypeId;
         String workoutTypeName;
         String workoutTypeDescription;
+        String workoutClassDate;
+        String workoutClassTime;
+        LocalDateTime workoutClassDateTime = null;
 
         // Header
         System.out.println();
@@ -667,8 +674,10 @@ public class Menu {
                 return; // Exit if the workout class cannot be found
             }
         } catch (Exception e) {
-            System.out.println("\nError while retrieving the workout class.\n");
-            LoggingManagement.log(e.getMessage(), true);
+            String errorMessage = "Error while retrieving the workout class with ID: " + workoutClassId;
+
+            System.out.println(errorMessage);
+            LoggingManagement.log(errorMessage + ": " + e.getMessage(), true);
             return; // Exit if the workout class cannot be found
         }
 
@@ -686,6 +695,21 @@ public class Menu {
             System.out.println("Enter the description for the new workout class type:");
             workoutTypeDescription = scanner.nextLine();
 
+            do {
+                System.out.println("Enter the date of the workout class (YYYY-MM-DD):");
+                workoutClassDate = scanner.nextLine();
+
+                System.out.println("Enter the time of the workout class (HH:MM):");
+                workoutClassTime = scanner.nextLine();
+
+                try {
+                    // Parse the date and time to LocalDateTime
+                    workoutClassDateTime = LocalDateTime.parse(workoutClassDate + "T" + workoutClassTime + ":00");
+                } catch (Exception e) {
+                    System.out.println("Invalid date or time format. Please enter the date in YYYY-MM-DD and time in HH:MM format.");
+                }
+            } while (workoutClassDateTime == null);
+
             try {
                 workoutTypeId = WorkoutClassTypesDAO.createWorkoutClassType(workoutTypeName, workoutTypeDescription);
 
@@ -693,22 +717,30 @@ public class Menu {
                 workoutClass.setWorkoutClassType(workoutClassType);
 
                 // Print success message
-                System.out.println("\nWorkout class type created successfully with ID: " + workoutTypeId);
+                String successMessage = "Workout class type created successfully with ID: " + workoutTypeId;
+
+                System.out.println(successMessage);
+                LoggingManagement.log(successMessage, false);
             } catch (Exception e) {
-                System.out.println("\nError while creating the workout class type.\n");
-                LoggingManagement.log(e.getMessage(), true);
+                String errorMessage = "Error while creating the workout class type.";
+
+                System.out.println(errorMessage);
+                LoggingManagement.log(errorMessage + ": " + e.getMessage(), true);
                 return;
             }
         }
 
         try {
             WorkoutClassesDAO.updateWorkoutClass(workoutClassId, workoutClass.getWorkoutClassType().getId(),
-                    workoutClass.getDescription(), loggedUser.getUserId(), LocalDateTime.now());
+                    workoutClass.getDescription(), loggedUser.getUserId(), workoutClassDateTime);
 
             System.out.println("\nWorkout class updated successfully.\n");
+            LoggingManagement.log("Workout class with ID: " + workoutClassId + " updated successfully.", false);
         } catch (Exception e) {
-            System.out.println("\nError while updating the workout class.\n");
-            LoggingManagement.log(e.getMessage(), true);
+            String errorMessage = "Error while updating the workout class with ID: " + workoutClassId;
+
+            System.out.println(errorMessage);
+            LoggingManagement.log(errorMessage + ": " + e.getMessage(), true);
         }
     }
 
@@ -731,8 +763,9 @@ public class Menu {
                 System.out.println("Workout Class with ID: " + workoutClassId + " deleted successfully.");
             }
         } catch (Exception e) {
-            System.out.println("Error while deleting the workout class.");
-            LoggingManagement.log(e.getMessage(), true);
+            String errorMessage = "Error while deleting the workout class with ID." + workoutClassId;
+            System.out.println(errorMessage);
+            LoggingManagement.log(errorMessage + ": " + e.getMessage(), true);
         }
     }
 }
