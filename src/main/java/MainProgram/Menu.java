@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.Scanner;
 import GymMerchManagement.GymMerchDAO;
 import GymMerchandise.GymMerchandise;
-import GymMerchandise.MerchandiseTypes;
+import GymMerchandise.MerchandiseType;
 import UserManagement.UserDAO;
 import UserManagement.UserService;
 import Users.*;
@@ -260,10 +260,10 @@ public class Menu {
         System.out.print("Enter merchandise type name: ");
         String typeName = scanner.nextLine().trim();
 
-        MerchandiseTypes type = null;
-        ArrayList<MerchandiseTypes> types = GymMerchDAO.getAllMerchandiseTypes();
+        MerchandiseType type = null;
+        ArrayList<MerchandiseType> types = GymMerchDAO.getAllMerchandiseType();
 
-        for (MerchandiseTypes t : types) {
+        for (MerchandiseType t : types) {
             if (t.getMerchandiseTypeName().equalsIgnoreCase(typeName)) {
                 type = t;
                 break;
@@ -272,8 +272,8 @@ public class Menu {
 
         if (type == null) {
             GymMerchDAO.createMerchandiseType(typeName);
-            types = GymMerchDAO.getAllMerchandiseTypes();
-            for (MerchandiseTypes t : types) {
+            types = GymMerchDAO.getAllMerchandiseType();
+            for (MerchandiseType t : types) {
                 if (t.getMerchandiseTypeName().equalsIgnoreCase(typeName)) {
                     type = t;
                     break;
@@ -397,7 +397,7 @@ public class Menu {
                     // Purchase membership
                     break;
                 case 3:
-                    // Show gym merchandise
+                    printAllMerchandiseAndStockValue();
                     break;
                 case 4:
                     System.out.println("Logging out...");

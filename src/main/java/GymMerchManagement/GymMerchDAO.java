@@ -2,7 +2,7 @@ package GymMerchManagement;
 
 import DBManager.DatabaseConnection;
 import GymMerchandise.GymMerchandise;
-import GymMerchandise.MerchandiseTypes;
+import GymMerchandise.MerchandiseType;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -44,8 +44,8 @@ public class GymMerchDAO {
     }
 
     // This method finds a single merchandise type by using its identification number
-    public static MerchandiseTypes getMerchandiseTypeById(int typeId) {
-        MerchandiseTypes type = null;
+    public static MerchandiseType getMerchandiseTypeById(int typeId) {
+        MerchandiseType type = null;
         final String query = "SELECT * FROM merchandise_types WHERE merchandise_type_id = ?";
 
         try (Connection connection = DatabaseConnection.getConnection();
@@ -55,7 +55,7 @@ public class GymMerchDAO {
             ResultSet result = statement.executeQuery();
 
             if (result.next()) {
-                type = new MerchandiseTypes(
+                type = new MerchandiseType(
                         result.getInt("merchandise_type_id"),
                         result.getString("merchandise_type_name")
                 );
@@ -84,7 +84,7 @@ public class GymMerchDAO {
              ResultSet result = statement.executeQuery()) {
 
             while (result.next()) {
-                MerchandiseTypes type = new MerchandiseTypes(
+                MerchandiseType type = new MerchandiseType(
                         result.getInt("merchandise_type_id"),
                         result.getString("merchandise_type_name")
                 );
@@ -126,7 +126,7 @@ public class GymMerchDAO {
             ResultSet result = statement.executeQuery();
 
             if (result.next()) {
-                MerchandiseTypes type = new MerchandiseTypes(
+                MerchandiseType type = new MerchandiseType(
                         result.getInt("merchandise_type_id"),
                         result.getString("merchandise_type_name")
                 );
@@ -216,8 +216,8 @@ public class GymMerchDAO {
     }
 
     // This method gets a list of all the merchandise types from the database
-    public static ArrayList<MerchandiseTypes> getAllMerchandiseTypes() {
-        ArrayList<MerchandiseTypes> types = new ArrayList<>();
+    public static ArrayList<MerchandiseType> getAllMerchandiseType() {
+        ArrayList<MerchandiseType> types = new ArrayList<>();
         final String query = "SELECT * FROM merchandise_types";
 
         try (Connection connection = DatabaseConnection.getConnection();
@@ -225,7 +225,7 @@ public class GymMerchDAO {
              ResultSet result = statement.executeQuery()) {
 
             while (result.next()) {
-                MerchandiseTypes type = new MerchandiseTypes(
+                MerchandiseType type = new MerchandiseType(
                         result.getInt("merchandise_type_id"),
                         result.getString("merchandise_type_name")
                 );

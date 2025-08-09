@@ -1,10 +1,10 @@
 package GymMerchandise;
 
-public class MerchandiseTypes {
+public class MerchandiseType {
     private int id;
     private String merchandiseTypeName;
 
-    public MerchandiseTypes(int id, String typeName) {
+    public MerchandiseType(int id, String typeName) {
         this.id = id;
         this.merchandiseTypeName = typeName;
     }
