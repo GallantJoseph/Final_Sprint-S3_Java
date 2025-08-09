@@ -1,6 +1,7 @@
 package WorkoutClassManagement;
 
 import DBManager.DatabaseConnection;
+import Logging.LoggingManagement;
 import UserManagement.UserDAO;
 import Users.Role;
 import Users.Trainer;
@@ -32,8 +33,7 @@ public class WorkoutClassesDAO {
             }
         } catch (SQLException e) {
             System.out.println("Error while adding the new workout class.");
-            // TODO Log the error
-            e.printStackTrace();
+            LoggingManagement.log(e.getMessage(), true);
         }
 
         return -1; // Return -1 to indicate failure
@@ -62,8 +62,7 @@ public class WorkoutClassesDAO {
             }
         } catch (SQLException e) {
             System.out.println("Error while retrieving the workout class.");
-            // TODO Log the error
-            e.printStackTrace();
+            LoggingManagement.log(e.getMessage(), true);
         }
 
         return workoutClass;
@@ -111,8 +110,7 @@ public class WorkoutClassesDAO {
             }
         } catch (SQLException e) {
             System.out.println("Error while retrieving the workout classes.");
-            // TODO Log the error
-            e.printStackTrace();
+            LoggingManagement.log(e.getMessage(), true);
         }
 
         return workoutClasses;
@@ -134,8 +132,7 @@ public class WorkoutClassesDAO {
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             System.out.println("Error while updating the workout class.");
-            // TODO Log the error
-            e.printStackTrace();
+            LoggingManagement.log(e.getMessage(), true);
         }
     }
 
@@ -152,8 +149,7 @@ public class WorkoutClassesDAO {
             affectedRows = preparedStatement.executeUpdate();
         } catch (SQLException e) {
             System.out.println("Error while deleting the workout class.");
-            // TODO Log the error
-            e.printStackTrace();
+            LoggingManagement.log(e.getMessage(), true);
         }
 
         return affectedRows;

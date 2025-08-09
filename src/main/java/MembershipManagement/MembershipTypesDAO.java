@@ -1,6 +1,7 @@
 package MembershipManagement;
 
 import DBManager.DatabaseConnection;
+import Logging.LoggingManagement;
 import Memberships.MembershipType;
 
 import java.sql.Connection;
@@ -25,7 +26,7 @@ public class MembershipTypesDAO {
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             System.out.println("Error while adding the new membership type.");
-            e.printStackTrace();
+            LoggingManagement.log(e.getMessage(), true);
         }
     }
 
@@ -52,7 +53,7 @@ public class MembershipTypesDAO {
             }
         } catch (SQLException e) {
             System.out.println("Error while retrieving the membership type.");
-            e.printStackTrace();
+            LoggingManagement.log(e.getMessage(), true);
         }
 
         return membershipType;
@@ -80,7 +81,7 @@ public class MembershipTypesDAO {
             }
         } catch (SQLException e) {
             System.out.println("Error while retrieving the membership types.");
-            e.printStackTrace();
+            LoggingManagement.log(e.getMessage(), true);
         }
 
         return membershipTypes;
@@ -101,7 +102,7 @@ public class MembershipTypesDAO {
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             System.out.println("Error while updating the membership type.");
-            e.printStackTrace();
+            LoggingManagement.log(e.getMessage(), true);
         }
     }
 
@@ -117,7 +118,7 @@ public class MembershipTypesDAO {
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             System.out.println("Error while deleting the membership type. There might be memberships associated with this type.");
-            e.printStackTrace();
+            LoggingManagement.log(e.getMessage(), true);
         }
     }
 }

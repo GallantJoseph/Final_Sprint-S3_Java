@@ -3,6 +3,7 @@ package GymMerchManagement;
 import DBManager.DatabaseConnection;
 import GymMerchandise.GymMerchandise;
 import GymMerchandise.MerchandiseType;
+import Logging.LoggingManagement;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -20,7 +21,7 @@ public class GymMerchDAO {
 
         } catch (SQLException exception) {
             System.out.println("Something went wrong while adding a new merchandise type.");
-            exception.printStackTrace();
+            LoggingManagement.log(exception.getMessage(), true);
         }
     }
 
@@ -39,7 +40,7 @@ public class GymMerchDAO {
 
         } catch (SQLException exception) {
             System.out.println("Something went wrong while adding a new gym merchandise item.");
-            exception.printStackTrace();
+            LoggingManagement.log(exception.getMessage(), true);
         }
     }
 
@@ -63,7 +64,7 @@ public class GymMerchDAO {
 
         } catch (SQLException exception) {
             System.out.println("Something went wrong while getting a merchandise type.");
-            exception.printStackTrace();
+            LoggingManagement.log(exception.getMessage(), true);
         }
 
         return type;
@@ -102,7 +103,7 @@ public class GymMerchDAO {
 
         } catch (SQLException exception) {
             System.out.println("Something went wrong while getting all gym merchandise.");
-            exception.printStackTrace();
+            LoggingManagement.log(exception.getMessage(), true);
         }
 
         return merchandiseList;
@@ -142,7 +143,7 @@ public class GymMerchDAO {
 
         } catch (SQLException exception) {
             System.out.println("Something went wrong while getting gym merchandise by its identification number.");
-            exception.printStackTrace();
+            LoggingManagement.log(exception.getMessage(), true);
         }
 
         return merchandise;
@@ -171,7 +172,7 @@ public class GymMerchDAO {
 
         } catch (SQLException exception) {
             System.out.println("Something went wrong while updating the gym merchandise.");
-            exception.printStackTrace();
+            LoggingManagement.log(exception.getMessage(), true);
         }
     }
 
@@ -191,7 +192,7 @@ public class GymMerchDAO {
 
         } catch (SQLException exception) {
             System.out.println("Something went wrong while deleting gym merchandise.");
-            exception.printStackTrace();
+            LoggingManagement.log(exception.getMessage(), true);
         }
     }
 
@@ -209,7 +210,7 @@ public class GymMerchDAO {
 
         } catch (SQLException exception) {
             System.out.println("Something went wrong while calculating the total stock value.");
-            exception.printStackTrace();
+            
         }
 
         return 0.0;
@@ -234,7 +235,7 @@ public class GymMerchDAO {
 
         } catch (SQLException exception) {
             System.out.println("Something went wrong while getting all merchandise types.");
-            exception.printStackTrace();
+            LoggingManagement.log(exception.getMessage(), true);
         }
 
         return types;
@@ -256,7 +257,7 @@ public class GymMerchDAO {
 
         } catch (SQLException exception) {
             System.out.println("Something went wrong while deleting merchandise type.");
-            exception.printStackTrace();
+            LoggingManagement.log(exception.getMessage(), true);
         }
     }
 }

@@ -1,6 +1,7 @@
 package UserManagement;
 
 import DBManager.DatabaseConnection;
+import Logging.LoggingManagement;
 import Users.Role;
 import Users.Trainer;
 import Users.User;
@@ -43,8 +44,7 @@ public class UserDAO {
             }
         } catch (SQLException e) {
             System.out.println("Error while adding the new user.\n");
-            // TODO Log the error
-            e.printStackTrace();
+            LoggingManagement.log(e.getMessage(), true);
         }
 
         return generatedId;
@@ -100,8 +100,7 @@ public class UserDAO {
             }
         } catch (SQLException e) {
             System.out.println("Error while retrieving the user.");
-            // TODO Log the error
-            e.printStackTrace();
+            LoggingManagement.log(e.getMessage(), true);
         }
 
         return user;
@@ -149,8 +148,7 @@ public class UserDAO {
             }
         } catch (SQLException e) {
             System.out.println("Error while retrieving the user.");
-            // TODO Log the error
-            e.printStackTrace();
+            LoggingManagement.log(e.getMessage(), true);
         }
 
         return user;
@@ -176,8 +174,7 @@ public class UserDAO {
             }
         } catch (SQLException e) {
             System.out.println("Error while retrieving roles.");
-            // TODO Log the error
-            e.printStackTrace();
+            LoggingManagement.log(e.getMessage(), true);
         }
 
         // Check if roles list is empty

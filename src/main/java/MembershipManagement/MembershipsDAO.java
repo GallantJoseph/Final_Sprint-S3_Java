@@ -1,6 +1,7 @@
 package MembershipManagement;
 
 import DBManager.DatabaseConnection;
+import Logging.LoggingManagement;
 import Memberships.Membership;
 import UserManagement.UserDAO;
 import Users.Role;
@@ -27,7 +28,7 @@ public class MembershipsDAO {
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             System.out.println("Error while adding the new membership.");
-            e.printStackTrace();
+            LoggingManagement.log(e.getMessage(), true);
         }
     }
 
@@ -54,7 +55,7 @@ public class MembershipsDAO {
             }
         } catch (SQLException e) {
             System.out.println("Error while retrieving the membership.");
-            e.printStackTrace();
+            LoggingManagement.log(e.getMessage(), true);
         }
 
         return membership;
@@ -82,7 +83,7 @@ public class MembershipsDAO {
             }
         } catch (SQLException e) {
             System.out.println("Error while retrieving memberships.");
-            e.printStackTrace();
+            LoggingManagement.log(e.getMessage(), true);
         }
 
         return memberships;
@@ -111,7 +112,7 @@ public class MembershipsDAO {
             }
         } catch (SQLException e) {
             System.out.println("Error while retrieving memberships for user.");
-            e.printStackTrace();
+            LoggingManagement.log(e.getMessage(), true);
         }
 
         return memberships;
@@ -133,7 +134,7 @@ public class MembershipsDAO {
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             System.out.println("Error while updating membership.");
-            e.printStackTrace();
+            LoggingManagement.log(e.getMessage(), true);
         }
     }
 
@@ -147,7 +148,7 @@ public class MembershipsDAO {
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             System.out.println("Error while deleting membership.");
-            e.printStackTrace();
+            LoggingManagement.log(e.getMessage(), true);
         }
     }
 }

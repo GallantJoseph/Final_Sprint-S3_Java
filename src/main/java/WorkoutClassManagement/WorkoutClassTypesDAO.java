@@ -1,6 +1,7 @@
 package WorkoutClassManagement;
 
 import DBManager.DatabaseConnection;
+import Logging.LoggingManagement;
 import WorkoutClasses.WorkoutClassType;
 
 import java.sql.Connection;
@@ -29,8 +30,7 @@ public class WorkoutClassTypesDAO {
             }
         } catch (SQLException e) {
             System.out.println("Error while adding the new workout class type.");
-            // TODO Log the error
-            e.printStackTrace();
+            LoggingManagement.log(e.getMessage(), true);
         }
 
         System.out.println("No ID was generated for the new workout class type.");
@@ -59,8 +59,7 @@ public class WorkoutClassTypesDAO {
             }
         } catch (SQLException e) {
             System.out.println("Error while retrieving the workout class type.");
-            // TODO Log the error
-            e.printStackTrace();
+            LoggingManagement.log(e.getMessage(), true);
         }
 
         return workoutClassType;
@@ -87,8 +86,7 @@ public class WorkoutClassTypesDAO {
             }
         } catch (SQLException e) {
             System.out.println("Error while retrieving the workout class types.");
-            // TODO Log the error
-            e.printStackTrace();
+            LoggingManagement.log(e.getMessage(), true);
         }
 
         return workoutClassTypes;
@@ -108,8 +106,7 @@ public class WorkoutClassTypesDAO {
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             System.out.println("Error while updating the workout class type.");
-            // TODO Log the error
-            e.printStackTrace();
+            LoggingManagement.log(e.getMessage(), true);
         }
     }
 
@@ -125,8 +122,7 @@ public class WorkoutClassTypesDAO {
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             System.out.println("Error while deleting the workout class type. There might be workout classes associated with this type.");
-            // TODO Log the error
-            e.printStackTrace();
+            LoggingManagement.log(e.getMessage(), true);
         }
     }
 }

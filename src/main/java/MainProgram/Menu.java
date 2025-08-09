@@ -14,6 +14,7 @@ import java.util.Scanner;
 import GymMerchManagement.GymMerchDAO;
 import GymMerchandise.GymMerchandise;
 import GymMerchandise.MerchandiseType;
+import Logging.LoggingManagement;
 import UserManagement.UserDAO;
 import UserManagement.UserService;
 import Users.*;
@@ -572,8 +573,7 @@ public class Menu {
                     workoutClassType = WorkoutClassTypesDAO.getWorkoutClassType(workoutClassTypeId);
                 } catch (Exception e) {
                     System.out.println("Error while retrieving the workout class types.");
-                    // TODO Log the error
-                    e.printStackTrace();
+                    LoggingManagement.log(e.getMessage(), true);
                 }
             } else {
                 input = scanner.nextLine();
@@ -639,8 +639,7 @@ public class Menu {
             System.out.println("Workout class created successfully.\n");
         } catch (Exception e) {
             System.out.println("Error while creating the workout class.\n");
-            // TODO Log the error
-            e.printStackTrace();
+            LoggingManagement.log(e.getMessage(), true);
         }
     }
 
@@ -669,8 +668,7 @@ public class Menu {
             }
         } catch (Exception e) {
             System.out.println("\nError while retrieving the workout class.\n");
-            // TODO Log the error
-            e.printStackTrace();
+            LoggingManagement.log(e.getMessage(), true);
             return; // Exit if the workout class cannot be found
         }
 
@@ -698,8 +696,7 @@ public class Menu {
                 System.out.println("\nWorkout class type created successfully with ID: " + workoutTypeId);
             } catch (Exception e) {
                 System.out.println("\nError while creating the workout class type.\n");
-                // TODO Log the error
-                e.printStackTrace();
+                LoggingManagement.log(e.getMessage(), true);
                 return;
             }
         }
@@ -711,8 +708,7 @@ public class Menu {
             System.out.println("\nWorkout class updated successfully.\n");
         } catch (Exception e) {
             System.out.println("\nError while updating the workout class.\n");
-            // TODO Log the error
-            e.printStackTrace();
+            LoggingManagement.log(e.getMessage(), true);
         }
     }
 
@@ -736,8 +732,7 @@ public class Menu {
             }
         } catch (Exception e) {
             System.out.println("Error while deleting the workout class.");
-            // TODO Log the error
-            e.printStackTrace();
+            LoggingManagement.log(e.getMessage(), true);
         }
     }
 }
