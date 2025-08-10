@@ -56,6 +56,39 @@ public class UserDAO {
         System.out.println("User " + user.getUsername() + " deleted successfully.");
     }
 
+public static void deleteUserAndMembershipsByUserId(int userId) {
+    final String DELETE_MEMBERSHIPS_SQL = "DELETE FROM memberships WHERE member_id = ?";
+    final String DELETE_USER_SQL = "DELETE FROM users WHERE user_id = ?";
+
+    try {
+        Connection connection = DatabaseConnection.getConnection();
+
+        // Delete memberships first
+        PreparedStatement deleteMembershipsStmt = connection.prepareStatement(DELETE_MEMBERSHIPS_SQL);
+        deleteMembershipsStmt.setInt(1, userId);
+        int membershipsDeleted = deleteMembershipsStmt.executeUpdate();
+
+        // Delete user
+        PreparedStatement deleteUserStmt = connection.prepareStatement(DELETE_USER_SQL);
+        deleteUserStmt.setInt(1, userId);
+        int usersDeleted = deleteUserStmt.executeUpdate();
+
+        if (usersDeleted > 0) {
+            System.out.println("User and their memberships deleted successfully.");
+        } else {
+            System.out.println("No user found with ID: " + userId);
+        }
+
+        deleteMembershipsStmt.close();
+        deleteUserStmt.close();
+        connection.close();
+
+    } catch (SQLException e) {
+        System.out.println("Error deleting user.");
+        e.printStackTrace();
+    }
+}
+
     public static User getUserById(int userId, ArrayList<Role> roles) {
         User user = null;
         final String SQL = "SELECT * FROM users WHERE user_id = ?";

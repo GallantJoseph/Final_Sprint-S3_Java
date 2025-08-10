@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS users  (
 -- Table for membership_types
 CREATE TABLE IF NOT EXISTS membership_types  (
   mem_type_id SERIAL PRIMARY KEY,
-  mem_type_name VARCHAR(50) NOT NULL,
+  mem_type_name VARCHAR(50) UNIQUE NOT NULL,
   mem_type_description VARCHAR(100),
   mem_type_cost DECIMAL(10,2) NOT NULL
 );
@@ -61,20 +61,97 @@ CREATE TABLE IF NOT EXISTS workout_classes  (
 -- Table for merchandise types
 CREATE TABLE IF NOT EXISTS merchandise_types (
     merchandise_type_id SERIAL PRIMARY KEY,
-    merchandise_type_name VARCHAR(50) NOT NULL
+    merchandise_type_name VARCHAR(50) UNIQUE NOT NULL
 );
 
 -- Table for gym merchandise
 CREATE TABLE IF NOT EXISTS gym_merchandise (
     merchandise_id SERIAL PRIMARY KEY,
     merchandise_type_id INTEGER NOT NULL,
-    merchandise_name VARCHAR (50) NOT NULL,
+    merchandise_name VARCHAR (50) UNIQUE NOT NULL,
     merchandise_price DECIMAL(10,2) NOT NULL,
     quantity_in_stock INTEGER NOT NULL,
     FOREIGN KEY (merchandise_type_id) REFERENCES merchandise_types(merchandise_type_id) 
 );
 
--- Insert role types only if they don't already exist
+-- Insert role types only if they dont already exist
 INSERT INTO roles (name)
 VALUES ('admin'), ('trainer'), ('member')
 ON CONFLICT (name) DO NOTHING;
+
+-- Insert membership types only if they dont already exist
+INSERT INTO membership_types (mem_type_name, mem_type_description, mem_type_cost)
+VALUES 
+  ('Basic', 'Access to gym equipment during staffed hours only.', 29.99),
+  ('Regular', 'Includes basic access plus unlimited classes and free towel service.', 49.99),
+  ('Premium', 'All regular features plus 24/7 access, personal training sessions, and sauna use.', 69.99)
+ON CONFLICT (mem_type_name) DO NOTHING;
+
+-- Insert merchandise types only if they dont already exist
+INSERT INTO merchandise_types (merchandise_type_name)
+VALUES 
+  ('Clothing'),
+  ('Supplements'),
+  ('Accessories')
+ON CONFLICT (merchandise_type_name) DO NOTHING;
+
+-- Insert sample gym merchandise (only if not already inserted by name)
+INSERT INTO gym_merchandise (merchandise_type_id, merchandise_name, merchandise_price, quantity_in_stock)
+VALUES 
+  (1, 'Gym T-Shirt', 19.99, 50),
+  (1, 'Hoodie', 39.99, 30),
+  (2, 'Whey Protein (1kg)', 49.99, 20),
+  (2, 'Pre-Workout', 29.99, 25),
+  (3, 'Water Bottle', 9.99, 100),
+  (3, 'Lifting Gloves', 14.99, 40)
+ON CONFLICT (merchandise_name) DO NOTHING;
+
+-- ===========DELETE WHEN NOT USED SAMPLE ADMIN MEMBERS AND TRAINERS=========== --
+
+-- Insert sample users with different roles
+-- Make sure roles have already been inserted ('admin', 'trainer', 'member')
+
+-- Admins
+INSERT INTO users (username, password, first_name, last_name, street_address, city, province, postal_code, email, phone, role_id)
+VALUES
+  ('bobross', 'password123', 'Bob', 'Ross', '123 Happy Tree Lane', 'CBS', 'NL', 'A1A1A1', 'bob.ross@example.com', '709-555-1000', 
+   (SELECT role_id FROM roles WHERE name = 'admin')),
+  ('oprahwinfrey', 'password123', 'Oprah', 'Winfrey', '456 Talk Show Dr', 'St. Johns', 'NL', 'A1A2B2', 'oprah@example.com', '709-555-1001',
+   (SELECT role_id FROM roles WHERE name = 'admin'))
+ON CONFLICT (email) DO NOTHING;
+
+-- Trainers
+INSERT INTO users (username, password, first_name, last_name, street_address, city, province, postal_code, email, phone, role_id)
+VALUES
+  ('gordonramsay', 'password123', 'Gordon', 'Ramsay', '789 Kitchen St', 'Mount Pearl', 'NL', 'A1B2C3', 'gordon@example.com', '709-555-1002',
+   (SELECT role_id FROM roles WHERE name = 'trainer')),
+  ('serenawilliams', 'password123', 'Serena', 'Williams', '321 Tennis Court', 'Paradise', 'NL', 'A1C3D4', 'serena@example.com', '709-555-1003',
+   (SELECT role_id FROM roles WHERE name = 'trainer'))
+ON CONFLICT (email) DO NOTHING;
+
+-- Members (1 of each membership type)
+INSERT INTO users (username, password, first_name, last_name, street_address, city, province, postal_code, email, phone, role_id)
+VALUES
+  ('nicolascage', 'password123', 'Nicolas', 'Cage', '654 Movie Blvd', 'CBS', 'NL', 'A1D4E5', 'cage@example.com', '709-555-1004',
+   (SELECT role_id FROM roles WHERE name = 'member')),
+  ('beyonceknowles', 'password123', 'Beyonce', 'Knowles', '147 Music Rd', 'St. Johns', 'NL', 'A1E5F6', 'beyonce@example.com', '709-555-1005',
+   (SELECT role_id FROM roles WHERE name = 'member')),
+  ('ryanreynolds', 'password123', 'Ryan', 'Reynolds', '258 Film St', 'Mount Pearl', 'NL', 'A1F6G7', 'ryan@example.com', '709-555-1006',
+   (SELECT role_id FROM roles WHERE name = 'member'))
+ON CONFLICT (email) DO NOTHING;
+
+-- Link members to their membership types
+-- Make sure the users and membership_types are already inserted
+
+INSERT INTO memberships (membership_type_id, member_id, membership_start, membership_end)
+VALUES
+  ((SELECT mem_type_id FROM membership_types WHERE mem_type_name = 'Basic'),
+   (SELECT user_id FROM users WHERE username = 'nicolascage'),
+   CURRENT_DATE, NULL),
+  ((SELECT mem_type_id FROM membership_types WHERE mem_type_name = 'Regular'),
+   (SELECT user_id FROM users WHERE username = 'beyonceknowles'),
+   CURRENT_DATE, NULL),
+  ((SELECT mem_type_id FROM membership_types WHERE mem_type_name = 'Premium'),
+   (SELECT user_id FROM users WHERE username = 'ryanreynolds'),
+   CURRENT_DATE, NULL)
+ON CONFLICT DO NOTHING;
