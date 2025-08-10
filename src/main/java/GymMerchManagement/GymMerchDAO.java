@@ -2,7 +2,8 @@ package GymMerchManagement;
 
 import DBManager.DatabaseConnection;
 import GymMerchandise.GymMerchandise;
-import GymMerchandise.MerchandiseTypes;
+import GymMerchandise.MerchandiseType;
+import Logging.LoggingManagement;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -12,15 +13,20 @@ public class GymMerchDAO {
     // This method adds a new type of gym merchandise to the database
     public static void createMerchandiseType(String typeName) {
         final String query = "INSERT INTO merchandise_types (merchandise_type_name) VALUES (?)";
+
         try (Connection connection = DatabaseConnection.getConnection();
              PreparedStatement statement = connection.prepareStatement(query)) {
 
             statement.setString(1, typeName);
             statement.executeUpdate();
 
+            LoggingManagement.log("Merchandise type: " + typeName + " added successfully.", false);
+
         } catch (SQLException exception) {
-            System.out.println("Something went wrong while adding a new merchandise type.");
-            exception.printStackTrace();
+            String errorMessage = "Something went wrong while adding a new merchandise type.";
+
+            System.out.println(errorMessage);
+            LoggingManagement.log(errorMessage+ ": " + exception.getMessage(), true);
         }
     }
 
@@ -37,15 +43,19 @@ public class GymMerchDAO {
             statement.setInt(4, quantity);
             statement.executeUpdate();
 
+            LoggingManagement.log("Gym merchandise: " + name + " added successfully.", false);
+
         } catch (SQLException exception) {
-            System.out.println("Something went wrong while adding a new gym merchandise item.");
-            exception.printStackTrace();
+            String errorMessage = "Something went wrong while adding a new gym merchandise item.";
+
+            System.out.println(errorMessage);
+            LoggingManagement.log(errorMessage + ": " + exception.getMessage(), true);
         }
     }
 
     // This method finds a single merchandise type by using its identification number
-    public static MerchandiseTypes getMerchandiseTypeById(int typeId) {
-        MerchandiseTypes type = null;
+    public static MerchandiseType getMerchandiseTypeById(int typeId) {
+        MerchandiseType type = null;
         final String query = "SELECT * FROM merchandise_types WHERE merchandise_type_id = ?";
 
         try (Connection connection = DatabaseConnection.getConnection();
@@ -55,15 +65,17 @@ public class GymMerchDAO {
             ResultSet result = statement.executeQuery();
 
             if (result.next()) {
-                type = new MerchandiseTypes(
+                type = new MerchandiseType(
                         result.getInt("merchandise_type_id"),
                         result.getString("merchandise_type_name")
                 );
             }
 
         } catch (SQLException exception) {
-            System.out.println("Something went wrong while getting a merchandise type.");
-            exception.printStackTrace();
+            String errorMessage = "Something went wrong while retrieving merchandise type with ID: " + typeId;
+
+            System.out.println(errorMessage);
+            LoggingManagement.log(errorMessage + ": " + exception.getMessage(), true);
         }
 
         return type;
@@ -84,7 +96,7 @@ public class GymMerchDAO {
              ResultSet result = statement.executeQuery()) {
 
             while (result.next()) {
-                MerchandiseTypes type = new MerchandiseTypes(
+                MerchandiseType type = new MerchandiseType(
                         result.getInt("merchandise_type_id"),
                         result.getString("merchandise_type_name")
                 );
@@ -101,8 +113,10 @@ public class GymMerchDAO {
             }
 
         } catch (SQLException exception) {
-            System.out.println("Something went wrong while getting all gym merchandise.");
-            exception.printStackTrace();
+            String errorMessage = "Something went wrong while getting all gym merchandise.";
+
+            System.out.println(errorMessage);
+            LoggingManagement.log(errorMessage + ": " + exception.getMessage(), true);
         }
 
         return merchandiseList;
@@ -126,7 +140,7 @@ public class GymMerchDAO {
             ResultSet result = statement.executeQuery();
 
             if (result.next()) {
-                MerchandiseTypes type = new MerchandiseTypes(
+                MerchandiseType type = new MerchandiseType(
                         result.getInt("merchandise_type_id"),
                         result.getString("merchandise_type_name")
                 );
@@ -141,8 +155,10 @@ public class GymMerchDAO {
             }
 
         } catch (SQLException exception) {
-            System.out.println("Something went wrong while getting gym merchandise by its identification number.");
-            exception.printStackTrace();
+            String errorMessage = "Something went wrong while getting gym merchandise with ID: " + merchId;
+
+            System.out.println(errorMessage);
+            LoggingManagement.log(errorMessage + ": " + exception.getMessage(), true);
         }
 
         return merchandise;
@@ -167,11 +183,15 @@ public class GymMerchDAO {
 
             if (rowsChanged == 0) {
                 System.out.println("No merchandise was found with identification number " + merch.getId());
+            } else {
+                LoggingManagement.log("Gym merchandise with ID: " + merch.getId() + " updated successfully.", false);
             }
 
         } catch (SQLException exception) {
-            System.out.println("Something went wrong while updating the gym merchandise.");
-            exception.printStackTrace();
+            String errorMessage = "Something went wrong while updating the gym merchandise with ID: " + merch.getId();
+
+            System.out.println(errorMessage);
+            LoggingManagement.log(errorMessage + ": " + exception.getMessage(), true);
         }
     }
 
@@ -187,11 +207,15 @@ public class GymMerchDAO {
 
             if (rowsDeleted == 0) {
                 System.out.println("No merchandise was found with identification number " + merchId);
+            } else {
+                LoggingManagement.log("Gym merchandise with ID: " + merchId + " deleted successfully.", false);
             }
 
         } catch (SQLException exception) {
-            System.out.println("Something went wrong while deleting gym merchandise.");
-            exception.printStackTrace();
+            String errorMessage = "Something went wrong while deleting gym merchandise with ID: " + merchId;
+
+            System.out.println(errorMessage);
+            LoggingManagement.log(errorMessage + ": " + exception.getMessage(), true);
         }
     }
 
@@ -208,16 +232,18 @@ public class GymMerchDAO {
             }
 
         } catch (SQLException exception) {
-            System.out.println("Something went wrong while calculating the total stock value.");
-            exception.printStackTrace();
+            String errorMessage = "Something went wrong while calculating the total stock value.";
+
+            System.out.println(errorMessage);
+            LoggingManagement.log(errorMessage + ": " + exception.getMessage(), true);
         }
 
         return 0.0;
     }
 
     // This method gets a list of all the merchandise types from the database
-    public static ArrayList<MerchandiseTypes> getAllMerchandiseTypes() {
-        ArrayList<MerchandiseTypes> types = new ArrayList<>();
+    public static ArrayList<MerchandiseType> getAllMerchandiseType() {
+        ArrayList<MerchandiseType> types = new ArrayList<>();
         final String query = "SELECT * FROM merchandise_types";
 
         try (Connection connection = DatabaseConnection.getConnection();
@@ -225,7 +251,7 @@ public class GymMerchDAO {
              ResultSet result = statement.executeQuery()) {
 
             while (result.next()) {
-                MerchandiseTypes type = new MerchandiseTypes(
+                MerchandiseType type = new MerchandiseType(
                         result.getInt("merchandise_type_id"),
                         result.getString("merchandise_type_name")
                 );
@@ -233,8 +259,10 @@ public class GymMerchDAO {
             }
 
         } catch (SQLException exception) {
-            System.out.println("Something went wrong while getting all merchandise types.");
-            exception.printStackTrace();
+            String errorMessage = "Something went wrong while getting all merchandise types.";
+
+            System.out.println(errorMessage);
+            LoggingManagement.log(errorMessage + ": " + exception.getMessage(), true);
         }
 
         return types;
@@ -252,11 +280,15 @@ public class GymMerchDAO {
 
             if (rowsDeleted == 0) {
                 System.out.println("No merchandise type found with identification number " + typeId);
+            } else {
+                LoggingManagement.log("Merchandise type with ID: " + typeId + " deleted successfully.", false);
             }
 
         } catch (SQLException exception) {
-            System.out.println("Something went wrong while deleting merchandise type.");
-            exception.printStackTrace();
+            String errorMessage = "Something went wrong while deleting merchandise type with ID: " + typeId;
+
+            System.out.println(errorMessage);
+            LoggingManagement.log(errorMessage + ": " + exception.getMessage(), true);
         }
     }
 }

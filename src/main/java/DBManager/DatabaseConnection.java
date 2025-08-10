@@ -1,5 +1,7 @@
 package DBManager;
 
+import Logging.LoggingManagement;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -28,7 +30,10 @@ public class DatabaseConnection {
             Class.forName("org.postgresql.Driver");
             conn = DriverManager.getConnection(URL, USER, PASSWORD);
         } catch (ClassNotFoundException | SQLException e) {
-            e.printStackTrace();
+            String errorMessage = "Error loading PostgreSQL driver or connecting to the database.";
+
+            System.out.println(errorMessage);
+            LoggingManagement.log(errorMessage + ": " + e.getMessage(), true);
         }
         return conn;
     }
@@ -58,12 +63,21 @@ public class DatabaseConnection {
                 }
             }
 
-            System.out.println("Database tables created/verified successfully.");
+            String successMessage = "Database tables created/verified successfully.";
+
+            System.out.println(successMessage);
+            LoggingManagement.log(successMessage, false);
 
         } catch (SQLException e) {
-            System.err.println("SQL error running create_tables.sql: " + e.getMessage());
+            String errorMessage = "SQL error running create_tables.sql.";
+
+            System.err.println(errorMessage);
+            LoggingManagement.log(errorMessage + ": " + e.getMessage(), true);
         } catch (IOException e) {
-            System.err.println("Error reading SQL file: " + e.getMessage());
+            String errorMessage = "Error reading SQL file.";
+
+            System.err.println(errorMessage);
+            LoggingManagement.log(errorMessage + ": " + e.getMessage(), true);
         }
     }
 

@@ -1,6 +1,7 @@
 package WorkoutClassManagement;
 
 import DBManager.DatabaseConnection;
+import Logging.LoggingManagement;
 import UserManagement.UserDAO;
 import Users.Role;
 import Users.Trainer;
@@ -28,12 +29,23 @@ public class WorkoutClassesDAO {
             preparedStatement.executeUpdate();
 
             if (preparedStatement.getGeneratedKeys().next()) {
-                return preparedStatement.getGeneratedKeys().getInt(1); // Return the ID of the newly created workout class
+                // Retrieve the generated ID of the new workout class
+                int workoutClassId = preparedStatement.getGeneratedKeys().getInt(1);
+
+                // Log the successful addition of the new workout class
+                LoggingManagement.log("New workout class added with ID: " + workoutClassId + ", Type ID: " + workoutClassTypeId + ", Description: " + workoutClassDesc, false);
+
+                // Return the ID of the newly created workout class
+                return workoutClassId;
+            } else {
+                String errorMessage = "No ID was generated for the new workout class.";
+                System.out.println(errorMessage);
+                LoggingManagement.log(errorMessage, true);
             }
         } catch (SQLException e) {
-            System.out.println("Error while adding the new workout class.");
-            // TODO Log the error
-            e.printStackTrace();
+            String errorMessage = "Error while adding the new workout class.";
+            System.out.println(errorMessage);
+            LoggingManagement.log(errorMessage + ": " + e.getMessage(), true);
         }
 
         return -1; // Return -1 to indicate failure
@@ -61,9 +73,9 @@ public class WorkoutClassesDAO {
                 // (LocalDateTime) resultSet.getString("workout_class_datetime")
             }
         } catch (SQLException e) {
-            System.out.println("Error while retrieving the workout class.");
-            // TODO Log the error
-            e.printStackTrace();
+            String errorMessage = "Error while retrieving the workout class with ID: " + workoutClassId;
+            System.out.println(errorMessage);
+            LoggingManagement.log(errorMessage + ": " + e.getMessage(), true);
         }
 
         return workoutClass;
@@ -96,23 +108,21 @@ public class WorkoutClassesDAO {
             ResultSet resultSet = preparedStatement.executeQuery();
 
             while (resultSet.next()) {
-                // TODO Fix datetime format
                 WorkoutClass workoutClass = new WorkoutClass(
                         resultSet.getInt("workout_class_id"),
                         WorkoutClassTypesDAO.getWorkoutClassType(resultSet.getInt("workout_class_type_id")),
                         resultSet.getString("workout_class_desc"),
                         new Trainer(UserDAO.getUserById(resultSet.getInt("trainer_id"), roles)),
-                        LocalDateTime.now()
+                        resultSet.getTimestamp("workout_class_datetime").toLocalDateTime()
                 );
-
-                //(LocalDateTime) resultSet.getObject("workout_class_datetime")
 
                 workoutClasses.add(workoutClass);
             }
         } catch (SQLException e) {
-            System.out.println("Error while retrieving the workout classes.");
-            // TODO Log the error
-            e.printStackTrace();
+            String errorMessage = "Error while retrieving the workout classes.";
+
+            System.out.println(errorMessage);
+            LoggingManagement.log(errorMessage + ": " + e.getMessage(), true);
         }
 
         return workoutClasses;
@@ -133,9 +143,10 @@ public class WorkoutClassesDAO {
 
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
-            System.out.println("Error while updating the workout class.");
-            // TODO Log the error
-            e.printStackTrace();
+            String errorMessage = "Error while updating the workout class with ID: " + workoutClassId;
+
+            System.out.println(errorMessage);
+            LoggingManagement.log(errorMessage + ": " + e.getMessage(), true);
         }
     }
 
@@ -150,10 +161,19 @@ public class WorkoutClassesDAO {
             preparedStatement.setInt(1, workoutClassId);
 
             affectedRows = preparedStatement.executeUpdate();
+
+            if (affectedRows == 0) {
+                String errorMessage = "No workout class found with ID: " + workoutClassId;
+                System.out.println(errorMessage);
+                LoggingManagement.log(errorMessage, true);
+            } else {
+                LoggingManagement.log("Workout class with ID: " + workoutClassId + " deleted successfully.", false);
+            }
         } catch (SQLException e) {
-            System.out.println("Error while deleting the workout class.");
-            // TODO Log the error
-            e.printStackTrace();
+            String errorMessage = "Error while deleting the workout class with ID: " + workoutClassId;
+
+            System.out.println(errorMessage);
+            LoggingManagement.log(errorMessage + ": " + e.getMessage(), true);
         }
 
         return affectedRows;

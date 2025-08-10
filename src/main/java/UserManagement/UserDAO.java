@@ -1,23 +1,18 @@
 package UserManagement;
 
 import DBManager.DatabaseConnection;
+import Logging.LoggingManagement;
 import Users.Role;
-import Users.Trainer;
 import Users.User;
-import WorkoutClassManagement.WorkoutClassTypesDAO;
-import WorkoutClasses.WorkoutClass;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 public class UserDAO {
     public static int createUser(User user) {
         final String SQL = "INSERT INTO users (username, password, first_name, last_name, street_address, city, province, postal_code, email, phone, role_id) VALUES (?,?,?,?,?,?,?,?,?,?,?)";
-        int generatedId = -1;
 
         try {
             Connection connection = DatabaseConnection.getConnection();
@@ -39,22 +34,25 @@ public class UserDAO {
 
             ResultSet generatedKeys = preparedStatement.getGeneratedKeys();
             if (generatedKeys.next()) {
-                generatedId = generatedKeys.getInt(1); // Set the generated user ID
+                int generatedId = generatedKeys.getInt(1); // Set the generated user ID
+                LoggingManagement.log("New user added with ID: " + generatedId + " and username: " + user.getUsername(), false);
+                return generatedId; // Return the ID of the newly created user
             }
         } catch (SQLException e) {
             System.out.println("Error while adding the new user.\n");
-            // TODO Log the error
-            e.printStackTrace();
+            LoggingManagement.log(e.getMessage(), true);
         }
 
-        return generatedId;
+        return -1;
     }
 
     public static void updateUser(User user) {
+        // TODO: Implement the update logic
         System.out.println("User " + user.getUsername() + " updated successfully.");
     }
 
     public static void deleteUser(User user) {
+        // TODO: Implement the delete logic
         System.out.println("User " + user.getUsername() + " deleted successfully.");
     }
 
@@ -133,8 +131,7 @@ public static void deleteUserAndMembershipsByUserId(int userId) {
             }
         } catch (SQLException e) {
             System.out.println("Error while retrieving the user.");
-            // TODO Log the error
-            e.printStackTrace();
+            LoggingManagement.log(e.getMessage(), true);
         }
 
         return user;
@@ -182,8 +179,7 @@ public static void deleteUserAndMembershipsByUserId(int userId) {
             }
         } catch (SQLException e) {
             System.out.println("Error while retrieving the user.");
-            // TODO Log the error
-            e.printStackTrace();
+            LoggingManagement.log(e.getMessage(), true);
         }
 
         return user;
@@ -209,8 +205,7 @@ public static void deleteUserAndMembershipsByUserId(int userId) {
             }
         } catch (SQLException e) {
             System.out.println("Error while retrieving roles.");
-            // TODO Log the error
-            e.printStackTrace();
+            LoggingManagement.log(e.getMessage(), true);
         }
 
         // Check if roles list is empty
