@@ -39,6 +39,7 @@ import WorkoutClassManagement.*;
 import WorkoutClasses.*;
 
 
+
 public class Menu {
 
     private static final Scanner scanner = new Scanner(System.in);
@@ -433,9 +434,9 @@ private static void addNewMerchandise(Scanner scanner) {
     System.out.print("Enter merchandise type name: ");
     String typeName = scanner.nextLine().trim();
 
-    MerchandiseTypes type = null;
-    ArrayList<MerchandiseTypes> types = GymMerchDAO.getAllMerchandiseTypes();
-    for (MerchandiseTypes t : types) {
+    MerchandiseType type = null;
+    ArrayList<MerchandiseType> types = GymMerchDAO.getAllMerchandiseType();
+    for (MerchandiseType t : types) {
         if (t.getMerchandiseTypeName().equalsIgnoreCase(typeName)) {
             type = t;
             break;
@@ -444,8 +445,8 @@ private static void addNewMerchandise(Scanner scanner) {
 
     if (type == null) {
         GymMerchDAO.createMerchandiseType(typeName);
-        types = GymMerchDAO.getAllMerchandiseTypes();
-        for (MerchandiseTypes t : types) {
+        types = GymMerchDAO.getAllMerchandiseType();
+        for (MerchandiseType t : types) {
 
             if (t.getMerchandiseTypeName().equalsIgnoreCase(typeName)) {
                 type = t;
