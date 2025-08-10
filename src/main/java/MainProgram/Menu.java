@@ -50,6 +50,7 @@ public class Menu {
     private static final Scanner scanner = new Scanner(System.in);
 
     public static void enterToContinue() {
+        System.out.println();
         System.out.print("Press Enter to continue...");
         scanner.nextLine();
     }
@@ -172,6 +173,7 @@ public class Menu {
 
         // Select role
         do {
+            
             System.out.println("Please enter your role (admin, trainer, member):");
             roleName = scanner.nextLine();
 
@@ -268,7 +270,7 @@ private static User adminMenu(Scanner scanner, User loggedUser) {
 private static void viewAllUsers() {
     ArrayList<Role> roles = UserDAO.getRoles();
     final String SQL = "SELECT * FROM users";
-
+    clearConsole();
     try {
         Connection connection = DatabaseConnection.getConnection();
         PreparedStatement preparedStatement = connection.prepareStatement(SQL);
@@ -312,6 +314,7 @@ enterToContinue();
 }
 
 private static void deleteUser(Scanner scanner) {
+    clearConsole();
     System.out.print("Enter user ID to delete: ");
     try {
         int userId = Integer.parseInt(scanner.nextLine());
@@ -330,6 +333,7 @@ private static void viewAllGymMembershipsAndTotalAnnualRevenue() {
     int currentYear = java.time.LocalDate.now().getYear();
     ArrayList<Role> roles = UserDAO.getRoles();
     ArrayList<Membership> memberships = MembershipsDAO.getAllMemberships(roles);
+    clearConsole();
 
     if (memberships.isEmpty()) {
         System.out.println("No memberships found.");
@@ -395,8 +399,9 @@ private static void viewAllGymMembershipsAndTotalAnnualRevenue() {
 }
 
 public static void merchManagementMenu(Scanner scanner) {
-        clearConsole();
+
     while (true) {
+        clearConsole();
         System.out.println("\nMerchandise Management Menu");
         System.out.println("1. Add new merchandise");
         System.out.println("2. Edit merchandise");
@@ -428,45 +433,56 @@ public static void merchManagementMenu(Scanner scanner) {
     }
 }
 
-    private static void addNewMerchandise(Scanner scanner) {
-        System.out.print("Enter merchandise type name: ");
-        String typeName = scanner.nextLine().trim();
+private static void addNewMerchandise(Scanner scanner) {
+    clearConsole();
+    System.out.print("Enter merchandise type name: ");
+    String typeName = scanner.nextLine().trim();
 
-        MerchandiseTypes type = null;
-        ArrayList<MerchandiseTypes> types = GymMerchDAO.getAllMerchandiseTypes();
+    MerchandiseTypes type = null;
+    ArrayList<MerchandiseTypes> types = GymMerchDAO.getAllMerchandiseTypes();
+    for (MerchandiseTypes t : types) {
+        if (t.getMerchandiseTypeName().equalsIgnoreCase(typeName)) {
+            type = t;
+            break;
+        }
+    }
 
+    if (type == null) {
+        GymMerchDAO.createMerchandiseType(typeName);
+        types = GymMerchDAO.getAllMerchandiseTypes();
         for (MerchandiseTypes t : types) {
             if (t.getMerchandiseTypeName().equalsIgnoreCase(typeName)) {
                 type = t;
                 break;
             }
         }
-
-        if (type == null) {
-            GymMerchDAO.createMerchandiseType(typeName);
-            types = GymMerchDAO.getAllMerchandiseTypes();
-            for (MerchandiseTypes t : types) {
-                if (t.getMerchandiseTypeName().equalsIgnoreCase(typeName)) {
-                    type = t;
-                    break;
-                }
-            }
-        }
-
-        System.out.print("Enter merchandise name: ");
-        String name = scanner.nextLine();
-
-        System.out.print("Enter merchandise price: ");
-        double price = Double.parseDouble(scanner.nextLine());
-
-        System.out.print("Enter quantity in stock: ");
-        int quantity = Integer.parseInt(scanner.nextLine());
-
-        GymMerchDAO.createGymMerchandise(type.getId(), name, price, quantity);
-        System.out.println("Merchandise added successfully.");
     }
 
-    private static void editMerchandise(Scanner scanner) {
+    System.out.print("Enter merchandise name: ");
+    String name = scanner.nextLine().trim();
+
+    ArrayList<GymMerchandise> allMerch = GymMerchDAO.getAllGymMerchandise();
+    for (GymMerchandise m : allMerch) {
+        if (m.getMerchandiseName().equalsIgnoreCase(name) && m.getMerchandiseType().getId() == type.getId()) {
+            System.out.println("Merchandise with that name and type already exists.");
+            enterToContinue();
+            return;
+        }
+    }
+
+    System.out.print("Enter merchandise price: ");
+    double price = Double.parseDouble(scanner.nextLine());
+
+    System.out.print("Enter quantity in stock: ");
+    int quantity = Integer.parseInt(scanner.nextLine());
+
+    GymMerchDAO.createGymMerchandise(type.getId(), name, price, quantity);
+    System.out.println("Merchandise added successfully.");
+    enterToContinue();
+}
+
+private static void editMerchandise(Scanner scanner) {
+        clearConsole();
         System.out.print("Enter the ID of the merchandise to edit: ");
         int id = Integer.parseInt(scanner.nextLine());
 
@@ -502,15 +518,26 @@ public static void merchManagementMenu(Scanner scanner) {
         enterToContinue();
     }
 
-    private static void deleteMerchandise(Scanner scanner) {
-        System.out.print("Enter the ID of the merchandise to delete: ");
-        int id = Integer.parseInt(scanner.nextLine());
+private static void deleteMerchandise(Scanner scanner) {
+    clearConsole();
+    System.out.print("Enter the ID of the merchandise to delete: ");
+    int id = Integer.parseInt(scanner.nextLine());
 
+    GymMerchandise merch = GymMerchDAO.getGymMerchandiseById(id);
+    if (merch != null) {
         GymMerchDAO.deleteGymMerchandise(id);
-        System.out.println("Deleted (if item existed).");
+        System.out.println("Merchandise deleted successfully.");
+    } else {
+        System.out.println("No merchandise found with that ID.");
     }
 
+    System.out.println("Press Enter to continue...");
+    scanner.nextLine();
+}
+
+
 private static void printAllMerchandiseAndStockValue() {
+    clearConsole();
     ArrayList<GymMerchandise> allMerch = GymMerchDAO.getAllGymMerchandise();
     System.out.println();
     System.out.println("                                === All Merchandise ===");
@@ -750,6 +777,7 @@ private static void printAllMerchandiseAndStockValue() {
         LocalDateTime dateTime;
 
         String input;
+        clearConsole();
 
         System.out.println("Enter the Workout Class Type (\"l\" to show the full list):");
 
@@ -765,7 +793,6 @@ private static void printAllMerchandiseAndStockValue() {
                     workoutClassType = WorkoutClassTypesDAO.getWorkoutClassType(workoutClassTypeId);
                 } catch (Exception e) {
                     System.out.println("Error while retrieving the workout class types.");
-                    enterToContinue();
                     // TODO Log the error
                     e.printStackTrace();
                 }
@@ -777,7 +804,7 @@ private static void printAllMerchandiseAndStockValue() {
 
                     if (workoutClassTypes.isEmpty()) {
                         System.out.println("No workout class types available.");
-                        enterToContinue();
+                        return;
                     } else {
                         System.out.println("\nAvailable workout class types:");
                         System.out.println("-------------------------------");
