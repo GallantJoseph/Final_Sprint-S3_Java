@@ -39,6 +39,7 @@ import WorkoutClassManagement.*;
 import WorkoutClasses.*;
 
 
+
 public class Menu {
 
     private static final Scanner scanner = new Scanner(System.in);
@@ -433,9 +434,9 @@ private static void addNewMerchandise(Scanner scanner) {
     System.out.print("Enter merchandise type name: ");
     String typeName = scanner.nextLine().trim();
 
-    MerchandiseTypes type = null;
-    ArrayList<MerchandiseTypes> types = GymMerchDAO.getAllMerchandiseTypes();
-    for (MerchandiseTypes t : types) {
+    MerchandiseType type = null;
+    ArrayList<MerchandiseType> types = GymMerchDAO.getAllMerchandiseType();
+    for (MerchandiseType t : types) {
         if (t.getMerchandiseTypeName().equalsIgnoreCase(typeName)) {
             type = t;
             break;
@@ -444,8 +445,8 @@ private static void addNewMerchandise(Scanner scanner) {
 
     if (type == null) {
         GymMerchDAO.createMerchandiseType(typeName);
-        types = GymMerchDAO.getAllMerchandiseTypes();
-        for (MerchandiseTypes t : types) {
+        types = GymMerchDAO.getAllMerchandiseType();
+        for (MerchandiseType t : types) {
 
             if (t.getMerchandiseTypeName().equalsIgnoreCase(typeName)) {
                 type = t;
@@ -645,8 +646,7 @@ private static void printAllMerchandiseAndStockValue() {
                 case 1:
                     // Browse workout classes
                     showAllWorkoutClasses(roles);
-                    System.out.println("\nPress ENTER to return to menu...");
-                    scanner.nextLine();
+
                     break;
                 case 2:
                     // Show membership expenses
@@ -656,8 +656,7 @@ private static void printAllMerchandiseAndStockValue() {
                     break;
                 case 4:
                     printAllMerchandise();
-                    System.out.println("\nPress ENTER to return to menu...");
-                    scanner.nextLine();
+
                     break;
                 case 5:
                     // Logout user
@@ -696,23 +695,19 @@ private static void printAllMerchandiseAndStockValue() {
             switch (option) {
                 case 1:
                     createNewWorkoutClass(scanner, loggedUser);
-                    System.out.print("\nPress Enter to continue...");
-                    scanner.nextLine();
+
                     break;
                 case 2:
                     updateWorkoutClass(scanner, loggedUser);
-                    System.out.print("\nPress Enter to continue...");
-                    scanner.nextLine();
+
                     break;
                 case 3:
                     deleteWorkoutClass(scanner, loggedUser);
-                    System.out.print("\nPress Enter to continue...");
-                    scanner.nextLine();
+
                     break;
                 case 4:
-                    showTrainerWorkoutClasses((Trainer) loggedUser, roles);
-                    System.out.print("\nPress Enter to continue...");
-                    scanner.nextLine();
+                    showTrainerWorkoutClasses(loggedUser, roles);
+;
                     break;
                 case 5:
                     break;
@@ -725,7 +720,7 @@ private static void printAllMerchandiseAndStockValue() {
 
     private static void showAllWorkoutClasses(ArrayList<Role> roles) {
         ArrayList<WorkoutClass> workoutClasses = WorkoutClassesDAO.getWorkoutClasses(-1,roles);
-
+clearConsole();
         if (workoutClasses.isEmpty()) {
             System.out.println("\nNo workout classes available.");
             enterToContinue();
@@ -746,7 +741,8 @@ private static void printAllMerchandiseAndStockValue() {
         }
     }
 
-    private static void showTrainerWorkoutClasses(Trainer trainer, ArrayList<Role> roles) {
+    private static void showTrainerWorkoutClasses(User trainer, ArrayList<Role> roles) {
+        clearConsole();
         ArrayList<WorkoutClass> workoutClasses = WorkoutClassesDAO.getWorkoutClasses(trainer.getUserId(),roles);
 
         if (workoutClasses.isEmpty()) {
@@ -790,9 +786,10 @@ private static void printAllMerchandiseAndStockValue() {
                 // Check if the Workout Class Type with this ID exists
                 try {
                     workoutClassType = WorkoutClassTypesDAO.getWorkoutClassType(workoutClassTypeId);
+                    enterToContinue();
                 } catch (Exception e) {
                     String errorMessage = "Error while retrieving the workout class type with ID: " + workoutClassTypeId;
-
+ enterToContinue();
                     System.out.println(errorMessage);
                     LoggingManagement.log(errorMessage + ": " + e.getMessage(), true);
                 }
@@ -804,7 +801,9 @@ private static void printAllMerchandiseAndStockValue() {
 
                     if (workoutClassTypes.isEmpty()) {
                         System.out.println("No workout class types available.");
+                         enterToContinue();
                         return;
+                        
                     } else {
                         System.out.println("\nAvailable workout class types:");
                         System.out.println("-------------------------------");
@@ -884,7 +883,7 @@ private static void printAllMerchandiseAndStockValue() {
         String workoutClassDate;
         String workoutClassTime;
         LocalDateTime workoutClassDateTime = null;
-
+clearConsole();
         // Header
         System.out.println();
         System.out.println("\nEnter the ID of the workout class to update: ");
@@ -983,7 +982,7 @@ private static void printAllMerchandiseAndStockValue() {
     private static void deleteWorkoutClass(Scanner scanner, User loggedUser) {
         int workoutClassId;
         int deletedRows;
-
+clearConsole();
         System.out.println("\nEnter the ID of the workout class to delete: ");
         workoutClassId = scanner.nextInt();
         scanner.nextLine(); // Consume newline
