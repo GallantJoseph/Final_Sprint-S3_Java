@@ -24,6 +24,7 @@ import GymMerchManagement.GymMerchDAO;
 import GymMerchandise.GymMerchandise;
 import GymMerchandise.MerchandiseType;
 import Logging.LoggingManagement;
+import MembershipManagement.MembershipTypesDAO;
 import MembershipManagement.MembershipsDAO;
 import Memberships.Membership;
 import Memberships.MembershipType;
@@ -213,7 +214,7 @@ public class Menu {
         return user;
     }
 
-private static User adminMenu(Scanner scanner, User loggedUser) {
+    private static User adminMenu(Scanner scanner, User loggedUser) {
     int option = 0;
     final int QUIT_OPTION = 5;
         
@@ -263,7 +264,7 @@ private static User adminMenu(Scanner scanner, User loggedUser) {
     return loggedUser;
 }
 
-private static void viewAllUsers() {
+    private static void viewAllUsers() {
     ArrayList<Role> roles = UserDAO.getRoles();
     final String SQL = "SELECT * FROM users";
     clearConsole();
@@ -309,7 +310,7 @@ enterToContinue();
     }
 }
 
-private static void deleteUser(Scanner scanner) {
+    private static void deleteUser(Scanner scanner) {
     clearConsole();
     System.out.print("Enter user ID to delete: ");
     try {
@@ -325,7 +326,7 @@ private static void deleteUser(Scanner scanner) {
     }
 }
 
-private static void viewAllGymMembershipsAndTotalAnnualRevenue() {
+    private static void viewAllGymMembershipsAndTotalAnnualRevenue() {
     int currentYear = java.time.LocalDate.now().getYear();
     ArrayList<Role> roles = UserDAO.getRoles();
     ArrayList<Membership> memberships = MembershipsDAO.getAllMemberships(roles);
@@ -394,7 +395,7 @@ private static void viewAllGymMembershipsAndTotalAnnualRevenue() {
     enterToContinue();
 }
 
-public static void merchManagementMenu(Scanner scanner) {
+    public static void merchManagementMenu(Scanner scanner) {
 
     while (true) {
         clearConsole();
@@ -429,7 +430,7 @@ public static void merchManagementMenu(Scanner scanner) {
     }
 }
 
-private static void addNewMerchandise(Scanner scanner) {
+    private static void addNewMerchandise(Scanner scanner) {
     clearConsole();
     System.out.print("Enter merchandise type name: ");
     String typeName = scanner.nextLine().trim();
@@ -480,7 +481,7 @@ private static void addNewMerchandise(Scanner scanner) {
     enterToContinue();
 }
 
-private static void editMerchandise(Scanner scanner) {
+    private static void editMerchandise(Scanner scanner) {
         clearConsole();
         System.out.print("Enter the ID of the merchandise to edit: ");
         int id = Integer.parseInt(scanner.nextLine());
@@ -517,7 +518,7 @@ private static void editMerchandise(Scanner scanner) {
         enterToContinue();
     }
 
-private static void deleteMerchandise(Scanner scanner) {
+    private static void deleteMerchandise(Scanner scanner) {
     clearConsole();
     System.out.print("Enter the ID of the merchandise to delete: ");
     int id = Integer.parseInt(scanner.nextLine());
@@ -535,7 +536,7 @@ private static void deleteMerchandise(Scanner scanner) {
 }
 
 
-private static void printAllMerchandiseAndStockValue() {
+    private static void printAllMerchandiseAndStockValue() {
     clearConsole();
     ArrayList<GymMerchandise> allMerch = GymMerchDAO.getAllGymMerchandise();
     System.out.println();
@@ -605,7 +606,7 @@ private static void printAllMerchandiseAndStockValue() {
                     // Purchase membership
                     break;
                 case 3:
-                    printAllMerchandiseAndStockValue();
+                    printAllMerchandise();
                     System.out.print("\nPress Enter to continue...");
                     scanner.nextLine();
                     break;
@@ -628,7 +629,7 @@ private static void printAllMerchandiseAndStockValue() {
         final int QUIT_OPTION = 5;
 
         do {
-        clearConsole();
+            clearConsole();
             //Header
             System.out.println("Welcome " + loggedUser.getFirstName() + "\nPlease make a selection:\n");
 
@@ -652,7 +653,7 @@ private static void printAllMerchandiseAndStockValue() {
                     // Show membership expenses
                     break;
                 case 3:
-                    // Purchase membership
+                    purchaseMembership(scanner, loggedUser);
                     break;
                 case 4:
                     printAllMerchandise();
@@ -720,7 +721,7 @@ private static void printAllMerchandiseAndStockValue() {
 
     private static void showAllWorkoutClasses(ArrayList<Role> roles) {
         ArrayList<WorkoutClass> workoutClasses = WorkoutClassesDAO.getWorkoutClasses(-1,roles);
-clearConsole();
+        clearConsole();
         if (workoutClasses.isEmpty()) {
             System.out.println("\nNo workout classes available.");
             enterToContinue();
@@ -883,7 +884,7 @@ clearConsole();
         String workoutClassDate;
         String workoutClassTime;
         LocalDateTime workoutClassDateTime = null;
-clearConsole();
+        clearConsole();
         // Header
         System.out.println();
         System.out.println("\nEnter the ID of the workout class to update: ");
@@ -982,7 +983,7 @@ clearConsole();
     private static void deleteWorkoutClass(Scanner scanner, User loggedUser) {
         int workoutClassId;
         int deletedRows;
-clearConsole();
+        clearConsole();
         System.out.println("\nEnter the ID of the workout class to delete: ");
         workoutClassId = scanner.nextInt();
         scanner.nextLine(); // Consume newline
@@ -1003,9 +1004,78 @@ clearConsole();
 
             String errorMessage = "Error while deleting the workout class with ID." + workoutClassId;
             System.out.println(errorMessage);
-           enterToContinue();
+            enterToContinue();
             LoggingManagement.log(errorMessage + ": " + e.getMessage(), true);
 
         }
+    }
+
+    private static void purchaseMembership(Scanner scanner, User loggedUser) {
+        // int Type id, int member id, localdate start date, localdate end date
+        int memberID = loggedUser.getUserId();
+        ArrayList<MembershipType> types = MembershipTypesDAO.getAllMembershipTypes();
+
+        clearConsole();
+        System.out.println("Please select a membership type: \n");
+
+        for (MembershipType type : types) {
+            System.out.println(type.getId() + ":");
+            System.out.println(type.getName());
+            System.out.println(type.getDescription());
+            System.out.println("$" + type.getCost() + "\n");
+        }
+
+        int selectedType;
+        while (true) {
+            System.out.print("> ");
+            selectedType = scanner.nextInt();
+            if (selectedType < 1 || selectedType > types.size()) {
+                System.out.println("That is not a valid option, try again");
+            } else {
+                break;
+            }
+        }
+
+
+        clearConsole();
+        System.out.println("Please select a membership duration: \n");
+
+        System.out.println("1: 3 months");
+        System.out.println("2: 6 months");
+        System.out.println("3: 1 year");
+
+        LocalDate start;
+        LocalDate end;
+        while (true) {
+            System.out.print("> ");
+            int selectedDuration = scanner.nextInt();
+
+            start = LocalDate.now();
+
+            if (selectedDuration == 1) {
+                end = start.plusMonths(3);
+                break;
+            } else if (selectedDuration == 2) {
+                end = start.plusMonths(6);
+                break;
+            } else if (selectedDuration == 3) {
+                end = start.plusYears(1);
+                break;
+            } else {
+                System.out.println("That is not a valid option, try again");
+            }
+        }
+        
+        int result = MembershipsDAO.createMembership(selectedType, memberID, start, end);
+
+        clearConsole();
+        if (result != -1) {
+            System.out.println("Membership purchased sucessfully. We hope you enjoy your workouts!");
+            System.out.println("Membership id: " + result);
+        } else {
+            System.out.println("There was an error creating your memebrship, please wait a few minutes and try again.");
+        }
+        
+        enterToContinue();
     }
 }
