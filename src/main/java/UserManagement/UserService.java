@@ -13,6 +13,7 @@ public class UserService {
 
             if (user != null) {
                 if (BCrypt.checkpw(password, user.getPassword())) {
+                    System.out.println("\nLogin successful!\n");
                     LoggingManagement.log("Login successful for user: " + username, false);
                     return user;
                 } else {
@@ -38,7 +39,7 @@ public class UserService {
             user.setPassword(BCrypt.hashpw(user.getPassword(), BCrypt.gensalt()));
 
             int newUserId = UserDAO.createUser(user);
-            System.out.println("User " + user.getUsername() + " registered successfully with ID: " + newUserId);
+            System.out.println("\nUser " + user.getUsername() + " registered successfully with ID: " + newUserId);
             LoggingManagement.log("New user registered with ID: " + newUserId + " and username: " + user.getUsername(), false);
 
         } catch (Exception e) {
