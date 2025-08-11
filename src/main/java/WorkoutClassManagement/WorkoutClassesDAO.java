@@ -180,4 +180,33 @@ public class WorkoutClassesDAO {
 
         return affectedRows;
     }
+
+    public static int deleteWorkoutClassByTrainerId(int trainerId) {
+        final String SQL = "DELETE FROM workout_classes WHERE trainer_id = ?";
+        int affectedRows = 0;
+
+        try {
+            Connection connection = DatabaseConnection.getConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(SQL);
+
+            preparedStatement.setInt(1, trainerId);
+
+            affectedRows = preparedStatement.executeUpdate();
+
+            if (affectedRows == 0) {
+                String errorMessage = "No workout classes found for trainer with ID: " + trainerId;
+                System.out.println(errorMessage);
+                LoggingManagement.log(errorMessage, true);
+            } else {
+                LoggingManagement.log("Workout classes for trainer with ID: " + trainerId + " deleted successfully.", false);
+            }
+        } catch (SQLException e) {
+            String errorMessage = "Error while deleting workout classes for trainer with ID: " + trainerId;
+
+            System.out.println(errorMessage);
+            LoggingManagement.log(errorMessage + ": " + e.getMessage(), true);
+        }
+
+        return affectedRows;
+    }
 }

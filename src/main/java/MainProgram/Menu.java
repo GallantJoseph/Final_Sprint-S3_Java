@@ -301,9 +301,12 @@ private static void viewAllUsers() {
         }
 enterToContinue();
     } catch (SQLException e) {
-        System.out.println("Error retrieving users.");
+        String errorMessage = "Error while retrieving users.";
+
+        // Print error message and log the error
+        System.out.println(errorMessage);
+        LoggingManagement.log(errorMessage + ": " + e.getMessage(), true);
         enterToContinue();
-        e.printStackTrace();
     }
 }
 
@@ -312,6 +315,10 @@ private static void deleteUser(Scanner scanner) {
     System.out.print("Enter user ID to delete: ");
     try {
         int userId = Integer.parseInt(scanner.nextLine());
+
+        // Call DAO method that deletes workout classes by trainer ID
+        // Safe to call it even if the user is not a trainer, since we can change the user's role later
+        WorkoutClassesDAO.deleteWorkoutClassByTrainerId(userId);
 
         // Call DAO method that deletes user and their memberships by user ID
         UserDAO.deleteUserAndMembershipsByUserId(userId);
