@@ -13,8 +13,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
 import DBManager.DatabaseConnection;
 import GymMerchManagement.GymMerchDAO;
@@ -27,13 +27,10 @@ import Memberships.MembershipType;
 import UserManagement.UserDAO;
 import UserManagement.UserService;
 import Users.*;
-import WorkoutClassManagement.WorkoutClassTypesDAO;
+import WorkoutClassManagement.WorkoutClassTypeDAO;
 import WorkoutClassManagement.WorkoutClassesDAO;
 import WorkoutClasses.WorkoutClass;
 import WorkoutClasses.WorkoutClassType;
-import Users.*;
-import WorkoutClassManagement.*;
-import WorkoutClasses.*;
 
 
 public class Menu {
@@ -45,7 +42,7 @@ public class Menu {
         do {
             if (loggedUser == null) {
                 // Header
-                System.out.println("Welcome to the Gym Management System\nPlease make a selection:\n");
+                System.out.println("\nWelcome to the Gym Management System\nPlease make a selection:\n");
 
                 System.out.println("1. Register");
                 System.out.println("2. Login");
@@ -64,10 +61,10 @@ public class Menu {
                         loggedUser = loginMenu(scanner, roles);
                         break;
                     case 3:
-                        System.out.println("Thank you for using the Gym Management System. Goodbye!");
+                        System.out.println("\nThank you for using the Gym Management System. Goodbye!");
                         break;
                     default:
-                        System.out.println("Invalid option. Please try again.");
+                        System.out.println("\nInvalid option. Please try again.");
                 }
             } else{
                 String roleName = null;
@@ -113,39 +110,39 @@ public class Menu {
         System.out.println("\nPlease enter your details to register:\n");
 
         // TODO Validate user input for each field
-        System.out.println("Please enter a username:");
+        System.out.println("Enter your username:");
         username = scanner.nextLine();
 
-        System.out.println("Please enter a password:");
+        System.out.println("\nEnter your password:");
         password = scanner.nextLine();
 
-        System.out.println("Please enter your first name:");
+        System.out.println("\nEnter your first name:");
         firstName = scanner.nextLine();
 
-        System.out.println("Please enter your last name:");
+        System.out.println("\nEnter your last name:");
         lastName = scanner.nextLine();
 
-        System.out.println("Please enter your address:");
+        System.out.println("\nEnter your address:");
         address = scanner.nextLine();
 
-        System.out.println("Please enter your city:");
+        System.out.println("\nEnter your city:");
         city = scanner.nextLine();
 
-        System.out.println("Please enter your province:");
+        System.out.println("\nEnter your province:");
         province = scanner.nextLine();
 
-        System.out.println("Please enter your postal code:");
+        System.out.println("\nEnter your postal code:");
         postalCode = scanner.nextLine();
 
-        System.out.println("Please enter your email:");
+        System.out.println("\nEnter your email:");
         email = scanner.nextLine();
 
-        System.out.println("Please enter your phone number:");
+        System.out.println("\nEnter your phone number:");
         phoneNumber = scanner.nextLine();
 
         // Select role
         do {
-            System.out.println("Please enter your role (admin, trainer, member):");
+            System.out.println("\nEnter your role (admin, trainer, member):");
             roleName = scanner.nextLine();
 
             for (Role r : roles) {
@@ -156,7 +153,7 @@ public class Menu {
             }
 
             if (role == null) {
-                System.out.println("Invalid role. Please try again.");
+                System.out.println("\nInvalid role. Please try again.");
             }
         } while (role == null);
 
@@ -167,19 +164,19 @@ public class Menu {
     }
 
     private static User loginMenu(Scanner scanner, ArrayList<Role> roles) {
-        String username = null;
-        String password = null;
+        String username;
+        String password;
 
-        User user = null;
+        User user;
 
         // Header
-        System.out.println("\nPlease enter your login credentials:\n");
+        System.out.println("\nPlease enter your login credentials:");
 
         do {
-            System.out.println("Please enter your username:");
+            System.out.println("\nEnter your username:");
             username = scanner.nextLine();
 
-            System.out.println("Please enter your password:");
+            System.out.println("\nEnter your password:");
             password = scanner.nextLine();
 
             user = UserService.login(username, password, roles);
@@ -466,8 +463,6 @@ private static void viewAllMembershipsAndRevenue() {
         }
     }
 
-
-
     private static User trainerMenu(Scanner scanner, User loggedUser, ArrayList<Role> roles) {
         int option = 0;
         final int QUIT_OPTION = 4;
@@ -501,7 +496,7 @@ private static void viewAllMembershipsAndRevenue() {
                     loggedUser = null; // Clear the logged user
                     break;
                 default:
-                    System.out.println("Invalid option. Please try again.");
+                    System.out.println("\nInvalid option. Please try again.");
             }
 
         } while (option != QUIT_OPTION);
@@ -606,6 +601,7 @@ private static void viewAllMembershipsAndRevenue() {
 
     private static void showAllWorkoutClasses(ArrayList<Role> roles) {
         ArrayList<WorkoutClass> workoutClasses = WorkoutClassesDAO.getWorkoutClasses(-1,roles);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
         if (workoutClasses.isEmpty()) {
             System.out.println("\nNo workout classes available.");
@@ -619,7 +615,7 @@ private static void viewAllMembershipsAndRevenue() {
                 System.out.println("Workout Class Type: " + workoutClass.getWorkoutClassType().getName());
                 System.out.println("Description: " + workoutClass.getDescription());
                 System.out.println("Trainer: " + workoutClass.getTrainer().getFullName());
-                System.out.println("Date and time: " + workoutClass.getDateTime());
+                System.out.println("Date and time: " + workoutClass.getDateTime().format(formatter));
                 System.out.println("-------------------------------");
             }
         }
@@ -627,6 +623,7 @@ private static void viewAllMembershipsAndRevenue() {
 
     private static void showTrainerWorkoutClasses(Trainer trainer, ArrayList<Role> roles) {
         ArrayList<WorkoutClass> workoutClasses = WorkoutClassesDAO.getWorkoutClasses(trainer.getUserId(),roles);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
         if (workoutClasses.isEmpty()) {
             System.out.println("\nNo workout classes for trainer " + trainer.getFullName() + ".");
@@ -639,7 +636,8 @@ private static void viewAllMembershipsAndRevenue() {
                 System.out.println("Workout Class ID: " + workoutClass.getId());
                 System.out.println("Workout Class Type: " + workoutClass.getWorkoutClassType().getName());
                 System.out.println("Description: " + workoutClass.getDescription());
-                System.out.println("Date and time: " + workoutClass.getDateTime());
+                // Format the date and time
+                System.out.println("Date and time: " + workoutClass.getDateTime().format(formatter));
                 System.out.println("-------------------------------");
             }
         }
@@ -655,17 +653,17 @@ private static void viewAllMembershipsAndRevenue() {
 
         String input;
 
-        System.out.println("Enter the Workout Class Type (\"l\" to show the full list):");
-
         // Check if the user entered "l" to show the list of workout class types or an ID
         do {
+            System.out.println("\nEnter the Workout Class Type (\"l\" to show the full list):");
+
             if (scanner.hasNextInt()) {
                 workoutClassTypeId = scanner.nextInt();
                 scanner.nextLine(); // Consume newline
 
                 // Check if the Workout Class Type with this ID exists
                 try {
-                    workoutClassType = WorkoutClassTypesDAO.getWorkoutClassType(workoutClassTypeId);
+                    workoutClassType = WorkoutClassTypeDAO.getWorkoutClassType(workoutClassTypeId);
                 } catch (Exception e) {
                     String errorMessage = "Error while retrieving the workout class type with ID: " + workoutClassTypeId;
 
@@ -676,7 +674,7 @@ private static void viewAllMembershipsAndRevenue() {
                 input = scanner.nextLine();
 
                 if (input.equalsIgnoreCase("l")) {
-                    ArrayList<WorkoutClassType> workoutClassTypes = WorkoutClassTypesDAO.getAllWorkoutClassTypes();
+                    ArrayList<WorkoutClassType> workoutClassTypes = WorkoutClassTypeDAO.getAllWorkoutClassTypes();
 
                     if (workoutClassTypes.isEmpty()) {
                         System.out.println("No workout class types available.");
@@ -698,11 +696,11 @@ private static void viewAllMembershipsAndRevenue() {
         } while (workoutClassType == null);
 
 
-        System.out.println("Enter the description of the new workout class:");
+        System.out.println("\nEnter the description of the new workout class:");
         description = scanner.nextLine();
 
         while (true) {
-            System.out.println("Enter the date of the new workout class (YYYY-MM-DD)");
+            System.out.println("\nEnter the date of the new workout class (YYYY-MM-DD)");
 
             dateString = scanner.nextLine();
 
@@ -716,7 +714,7 @@ private static void viewAllMembershipsAndRevenue() {
         }
 
         while (true) {
-            System.out.println("Enter the time of the new workout class (HH:MM)");
+            System.out.println("\nEnter the time of the new workout class (HH:MM)");
             timeString = scanner.nextLine();
 
             try {
@@ -732,7 +730,7 @@ private static void viewAllMembershipsAndRevenue() {
         try {
             int newWorkoutClassId = WorkoutClassesDAO.createWorkoutClass(workoutClassType.getId(), description, loggedUser.getUserId(), dateTime);
 
-            System.out.println("Workout class with ID: " + newWorkoutClassId + " created successfully.\n");
+            System.out.println("\nWorkout class with ID: " + newWorkoutClassId + " created successfully.\n");
         } catch (Exception e) {
             String errorMessage = "Error while creating the workout class.";
 
@@ -775,25 +773,25 @@ private static void viewAllMembershipsAndRevenue() {
             return; // Exit if the workout class cannot be found
         }
 
-        System.out.println("Current Workout Class Type: " + workoutClass.getWorkoutClassType().getName());
-        System.out.println("Enter the new type of the workout class (ID for existing type, or name): ");
+        System.out.println("\nCurrent Workout Class Type: " + workoutClass.getWorkoutClassType().getName());
+        System.out.println("\nEnter the new type of the workout class (ID for existing type, or name): ");
 
         if (scanner.hasNextInt()){
             workoutTypeId = scanner.nextInt();
             scanner.nextLine(); // Consume newline
 
-            workoutClass.setWorkoutClassType(WorkoutClassTypesDAO.getWorkoutClassType(workoutTypeId));
+            workoutClass.setWorkoutClassType(WorkoutClassTypeDAO.getWorkoutClassType(workoutTypeId));
         } else {
             workoutTypeName = scanner.nextLine();
 
-            System.out.println("Enter the description for the new workout class type:");
+            System.out.println("\nEnter the description for the new workout class type:");
             workoutTypeDescription = scanner.nextLine();
 
             do {
-                System.out.println("Enter the date of the workout class (YYYY-MM-DD):");
+                System.out.println("\nEnter the date of the workout class (YYYY-MM-DD):");
                 workoutClassDate = scanner.nextLine();
 
-                System.out.println("Enter the time of the workout class (HH:MM):");
+                System.out.println("\nEnter the time of the workout class (HH:MM):");
                 workoutClassTime = scanner.nextLine();
 
                 try {
@@ -805,7 +803,7 @@ private static void viewAllMembershipsAndRevenue() {
             } while (workoutClassDateTime == null);
 
             try {
-                workoutTypeId = WorkoutClassTypesDAO.createWorkoutClassType(workoutTypeName, workoutTypeDescription);
+                workoutTypeId = WorkoutClassTypeDAO.createWorkoutClassType(workoutTypeName, workoutTypeDescription);
 
                 WorkoutClassType workoutClassType = new WorkoutClassType(workoutTypeId, workoutTypeName, workoutTypeDescription);
                 workoutClass.setWorkoutClassType(workoutClassType);
@@ -850,9 +848,7 @@ private static void viewAllMembershipsAndRevenue() {
             deletedRows = WorkoutClassesDAO.deleteWorkoutClass(workoutClassId);
 
             // Check if any rows were deleted
-            if (deletedRows == 0) {
-                System.out.println("No Workout Class found with ID: " + workoutClassId);
-            } else {
+            if (deletedRows > 0) {
                 // If the deletion was successful, print a success message
                 System.out.println("Workout Class with ID: " + workoutClassId + " deleted successfully.");
             }

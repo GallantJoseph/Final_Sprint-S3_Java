@@ -64,7 +64,7 @@ public class WorkoutClassesDAO {
             if (resultSet.next()) {
                 workoutClass = new WorkoutClass(
                     resultSet.getInt("workout_class_id"),
-                    WorkoutClassTypesDAO.getWorkoutClassType(resultSet.getInt("workout_class_type_id")),
+                    WorkoutClassTypeDAO.getWorkoutClassType(resultSet.getInt("workout_class_type_id")),
                     resultSet.getString("workout_class_desc"),
                     new Trainer(UserDAO.getUserById(resultSet.getInt("trainer_id"), roles)),
                     LocalDateTime.now()
@@ -96,6 +96,8 @@ public class WorkoutClassesDAO {
             sql += " WHERE trainer_id = ?";
         }
 
+        sql += " ORDER BY workout_class_datetime"; // Order by datetime
+
         try {
             Connection connection = DatabaseConnection.getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
@@ -110,7 +112,7 @@ public class WorkoutClassesDAO {
             while (resultSet.next()) {
                 WorkoutClass workoutClass = new WorkoutClass(
                         resultSet.getInt("workout_class_id"),
-                        WorkoutClassTypesDAO.getWorkoutClassType(resultSet.getInt("workout_class_type_id")),
+                        WorkoutClassTypeDAO.getWorkoutClassType(resultSet.getInt("workout_class_type_id")),
                         resultSet.getString("workout_class_desc"),
                         new Trainer(UserDAO.getUserById(resultSet.getInt("trainer_id"), roles)),
                         resultSet.getTimestamp("workout_class_datetime").toLocalDateTime()
