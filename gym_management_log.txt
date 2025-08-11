@@ -1,0 +1,3 @@
+2025-08-11T18:55:31.829149900 - INFO: Database tables created/verified successfully.
+2025-08-11T18:55:42.620949400 - INFO: Database tables created/verified successfully.
+2025-08-11T18:55:57.998377 - INFO: New membership added for userID: 1, MembershipID: 7
