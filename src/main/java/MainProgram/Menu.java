@@ -601,7 +601,7 @@ enterToContinue();
                     manageWorkoutClasses(scanner, loggedUser, roles);
                     break;
                 case 2:
-                    // Purchase membership
+                    purchaseMembership(scanner, loggedUser);
                     break;
                 case 3:
                     printAllMerchandise();
@@ -1017,13 +1017,12 @@ enterToContinue();
         ArrayList<MembershipType> types = MembershipTypesDAO.getAllMembershipTypes();
 
         clearConsole();
-        System.out.println("Please select a membership type: \n");
+        System.out.println("Please select a membership type (1-3): \n");
 
         for (MembershipType type : types) {
-            System.out.println(type.getId() + ":");
-            System.out.println(type.getName());
-            System.out.println(type.getDescription());
-            System.out.println("$" + type.getCost() + "\n");
+            System.out.println(type.getId() + " " + type.getName() + " " + "($" + type.getCost() + ") " + type.getDescription());
+            // System.out.println(type.getDescription());
+
         }
 
         int selectedType;
@@ -1041,9 +1040,9 @@ enterToContinue();
         clearConsole();
         System.out.println("Please select a membership duration: \n");
 
-        System.out.println("1: 3 months");
-        System.out.println("2: 6 months");
-        System.out.println("3: 1 year");
+        System.out.println("1 (3 months)");
+        System.out.println("2 (6 months)");
+        System.out.println("3 (1 year)");
 
         LocalDate start;
         LocalDate end;
