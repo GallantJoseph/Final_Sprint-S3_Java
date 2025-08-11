@@ -213,271 +213,271 @@ public class Menu {
     }
 
     private static User adminMenu(Scanner scanner, User loggedUser) {
-    int option = 0;
-    final int QUIT_OPTION = 5;
-        
-    do {
-        clearConsole();
-        System.out.println("\nWelcome " + loggedUser.getFirstName());
-        System.out.println("Please choose an option:");
-        System.out.println("1. View all users and contact information");
-        System.out.println("2. Delete a user");
-        System.out.println("3. View all gym memberships and total revenue");
-        System.out.println("4. Merchandise Management");
-        System.out.println("5. Logout");
+        int option = 0;
+        final int QUIT_OPTION = 5;
+            
+        do {
+            clearConsole();
+            System.out.println("\nWelcome " + loggedUser.getFirstName());
+            System.out.println("Please choose an option:");
+            System.out.println("1. View all users and contact information");
+            System.out.println("2. Delete a user");
+            System.out.println("3. View all gym memberships and total revenue");
+            System.out.println("4. Merchandise Management");
+            System.out.println("5. Logout");
 
-        try {
-            option = Integer.parseInt(scanner.nextLine());
+            try {
+                option = Integer.parseInt(scanner.nextLine());
 
-            switch (option) {
-                case 1:
-                    viewAllUsers();
-                    break;
-                case 2:
-                    deleteUser(scanner);
-                    break;
-                case 3:
-                    viewAllGymMembershipsAndTotalAnnualRevenue();
-                    break;
-                case 4:
-                    merchManagementMenu(scanner);
-                    break;
-                case 5:
+                switch (option) {
+                    case 1:
+                        viewAllUsers();
+                        break;
+                    case 2:
+                        deleteUser(scanner);
+                        break;
+                    case 3:
+                        viewAllGymMembershipsAndTotalAnnualRevenue();
+                        break;
+                    case 4:
+                        merchManagementMenu(scanner);
+                        break;
+                    case 5:
 
-                    System.out.println("\nLogging out...\n");
-                    loggedUser = null; // Clear the logged user
+                        System.out.println("\nLogging out...\n");
+                        loggedUser = null; // Clear the logged user
 
-                    break;
-                default:
-                    System.out.println("Invalid option. Please try again.");
-                    enterToContinue();
+                        break;
+                    default:
+                        System.out.println("Invalid option. Please try again.");
+                        enterToContinue();
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input. Please enter a number.");
+                enterToContinue();
             }
-        } catch (NumberFormatException e) {
-            System.out.println("Invalid input. Please enter a number.");
-            enterToContinue();
-        }
 
-    } while (option != QUIT_OPTION);
+        } while (option != QUIT_OPTION);
 
-    return loggedUser;
-}
+        return loggedUser;
+    }
 
     private static void viewAllUsers() {
-    ArrayList<Role> roles = UserDAO.getRoles();
-    final String SQL = "SELECT * FROM users";
-    clearConsole();
-    try {
-        Connection connection = DatabaseConnection.getConnection();
-        PreparedStatement preparedStatement = connection.prepareStatement(SQL);
-        ResultSet resultSet = preparedStatement.executeQuery();
-        System.out.println();
-        System.out.println("=== All Users and Contact Information ===");
+        ArrayList<Role> roles = UserDAO.getRoles();
+        final String SQL = "SELECT * FROM users";
+        clearConsole();
+        try {
+            Connection connection = DatabaseConnection.getConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(SQL);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            System.out.println();
+            System.out.println("=== All Users and Contact Information ===");
 
-        // Print header row with aligned columns
-        System.out.printf("%-8s %-15s %-20s %-30s %-15s %-40s %-10s%n",
-            "User ID", "Username", "Name", "Email", "Phone", "Address", "Role");
-        System.out.println("-----------------------------------------------------------------------------------------------------------------------------------------------");
+            // Print header row with aligned columns
+            System.out.printf("%-8s %-15s %-20s %-30s %-15s %-40s %-10s%n",
+                "User ID", "Username", "Name", "Email", "Phone", "Address", "Role");
+            System.out.println("-----------------------------------------------------------------------------------------------------------------------------------------------");
 
-        while (resultSet.next()) {
-            int roleId = resultSet.getInt("role_id");
-            Role userRole = roles.stream().filter(r -> r.getId() == roleId).findFirst().orElse(null);
+            while (resultSet.next()) {
+                int roleId = resultSet.getInt("role_id");
+                Role userRole = roles.stream().filter(r -> r.getId() == roleId).findFirst().orElse(null);
 
-            int userId = resultSet.getInt("user_id");
-            String username = resultSet.getString("username");
-            String name = resultSet.getString("first_name") + " " + resultSet.getString("last_name");
-            String email = resultSet.getString("email");
-            String phone = resultSet.getString("phone");
+                int userId = resultSet.getInt("user_id");
+                String username = resultSet.getString("username");
+                String name = resultSet.getString("first_name") + " " + resultSet.getString("last_name");
+                String email = resultSet.getString("email");
+                String phone = resultSet.getString("phone");
 
-            String address = resultSet.getString("street_address") + ", " +
-                             resultSet.getString("city") + ", " +
-                             resultSet.getString("province") + ", " +
-                             resultSet.getString("postal_code");
+                String address = resultSet.getString("street_address") + ", " +
+                                resultSet.getString("city") + ", " +
+                                resultSet.getString("province") + ", " +
+                                resultSet.getString("postal_code");
 
-            String roleName = (userRole != null) ? userRole.getName() : "Unknown";
+                String roleName = (userRole != null) ? userRole.getName() : "Unknown";
 
-            // Print one user per row
-            System.out.printf("%-8d %-15s %-20s %-30s %-15s %-40s %-10s%n",
-                    userId, username, name, email, phone, address, roleName);
-                
+                // Print one user per row
+                System.out.printf("%-8d %-15s %-20s %-30s %-15s %-40s %-10s%n",
+                        userId, username, name, email, phone, address, roleName);
+                    
+            }
+    enterToContinue();
+        } catch (SQLException e) {
+            System.out.println("Error retrieving users.");
+            enterToContinue();
+            e.printStackTrace();
         }
-enterToContinue();
-    } catch (SQLException e) {
-        System.out.println("Error retrieving users.");
-        enterToContinue();
-        e.printStackTrace();
     }
-}
 
     private static void deleteUser(Scanner scanner) {
-    clearConsole();
-    System.out.print("Enter user ID to delete: ");
-    try {
-        int userId = Integer.parseInt(scanner.nextLine());
+        clearConsole();
+        System.out.print("Enter user ID to delete: ");
+        try {
+            int userId = Integer.parseInt(scanner.nextLine());
 
-        // Call DAO method that deletes user and their memberships by user ID
-        UserDAO.deleteUserAndMembershipsByUserId(userId);
-         enterToContinue();
+            // Call DAO method that deletes user and their memberships by user ID
+            UserDAO.deleteUserAndMembershipsByUserId(userId);
+            enterToContinue();
 
-    } catch (NumberFormatException e) {
-        System.out.println("Invalid input. Please enter a valid number.");
-        enterToContinue();
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid input. Please enter a valid number.");
+            enterToContinue();
+        }
     }
-}
 
     private static void viewAllGymMembershipsAndTotalAnnualRevenue() {
-    int currentYear = java.time.LocalDate.now().getYear();
-    ArrayList<Role> roles = UserDAO.getRoles();
-    ArrayList<Membership> memberships = MembershipsDAO.getAllMemberships(roles);
-    clearConsole();
+        int currentYear = java.time.LocalDate.now().getYear();
+        ArrayList<Role> roles = UserDAO.getRoles();
+        ArrayList<Membership> memberships = MembershipsDAO.getAllMemberships(roles);
+        clearConsole();
 
-    if (memberships.isEmpty()) {
-        System.out.println("No memberships found.");
+        if (memberships.isEmpty()) {
+            System.out.println("No memberships found.");
+            enterToContinue();
+            return;
+        }
+
+        double totalAnnualRevenue = 0.0;
+
+        // Print the header row with column titles
+        System.out.printf("%-15s %-20s %-20s %-12s %-12s %-15s %-22s%n",
+            "Membership ID", "Member Name", "Membership Type", "Start Date", "End Date", "Monthly Cost", "Active Months This Year");
+        System.out.println("-----------------------------------------------------------------------------------------------" +
+                        "----------------------------");
+
+        for (Membership membership : memberships) {
+            User member = membership.getMember();
+            MembershipType type = membership.getMembershipType();
+
+            double monthlyCost = type.getCost();
+
+            java.time.LocalDate startDate = membership.getStartDate();
+            java.time.LocalDate endDate = membership.getEndDate();
+
+            if (endDate == null) {
+                endDate = java.time.LocalDate.of(currentYear, 12, 31);
+            }
+
+            java.time.LocalDate yearStart = java.time.LocalDate.of(currentYear, 1, 1);
+            java.time.LocalDate yearEnd = java.time.LocalDate.of(currentYear, 12, 31);
+
+            if (startDate.isAfter(yearEnd) || endDate.isBefore(yearStart)) {
+                continue;
+            }
+
+            java.time.LocalDate effectiveStart = (startDate.isBefore(yearStart)) ? yearStart : startDate;
+            java.time.LocalDate effectiveEnd = (endDate.isAfter(yearEnd)) ? yearEnd : endDate;
+
+            int activeMonths = java.time.Period.between(
+                effectiveStart.withDayOfMonth(1),
+                effectiveEnd.withDayOfMonth(1)
+            ).getMonths() + 1;
+
+            totalAnnualRevenue += activeMonths * monthlyCost;
+
+            String endDateDisplay = (membership.getEndDate() != null) ? membership.getEndDate().toString() : "Ongoing";
+
+            // Print membership details in aligned columns
+            System.out.printf("%-15d %-20s %-20s %-12s %-12s $%-14.2f %-22d%n",
+                membership.getMembershipId(),
+                member.getFirstName() + " " + member.getLastName(),
+                type.getName(),
+                startDate.toString(),
+                endDateDisplay,
+                monthlyCost,
+                activeMonths);
+        }
+
+        System.out.println("-----------------------------------------------------------------------------------------------" +
+                        "----------------------------");
+        System.out.printf("Total Annual Revenue for %d: $%.2f%n", currentYear, totalAnnualRevenue);
         enterToContinue();
-        return;
     }
-
-    double totalAnnualRevenue = 0.0;
-
-    // Print the header row with column titles
-    System.out.printf("%-15s %-20s %-20s %-12s %-12s %-15s %-22s%n",
-        "Membership ID", "Member Name", "Membership Type", "Start Date", "End Date", "Monthly Cost", "Active Months This Year");
-    System.out.println("-----------------------------------------------------------------------------------------------" +
-                       "----------------------------");
-
-    for (Membership membership : memberships) {
-        User member = membership.getMember();
-        MembershipType type = membership.getMembershipType();
-
-        double monthlyCost = type.getCost();
-
-        java.time.LocalDate startDate = membership.getStartDate();
-        java.time.LocalDate endDate = membership.getEndDate();
-
-        if (endDate == null) {
-            endDate = java.time.LocalDate.of(currentYear, 12, 31);
-        }
-
-        java.time.LocalDate yearStart = java.time.LocalDate.of(currentYear, 1, 1);
-        java.time.LocalDate yearEnd = java.time.LocalDate.of(currentYear, 12, 31);
-
-        if (startDate.isAfter(yearEnd) || endDate.isBefore(yearStart)) {
-            continue;
-        }
-
-        java.time.LocalDate effectiveStart = (startDate.isBefore(yearStart)) ? yearStart : startDate;
-        java.time.LocalDate effectiveEnd = (endDate.isAfter(yearEnd)) ? yearEnd : endDate;
-
-        int activeMonths = java.time.Period.between(
-            effectiveStart.withDayOfMonth(1),
-            effectiveEnd.withDayOfMonth(1)
-        ).getMonths() + 1;
-
-        totalAnnualRevenue += activeMonths * monthlyCost;
-
-        String endDateDisplay = (membership.getEndDate() != null) ? membership.getEndDate().toString() : "Ongoing";
-
-        // Print membership details in aligned columns
-        System.out.printf("%-15d %-20s %-20s %-12s %-12s $%-14.2f %-22d%n",
-            membership.getMembershipId(),
-            member.getFirstName() + " " + member.getLastName(),
-            type.getName(),
-            startDate.toString(),
-            endDateDisplay,
-            monthlyCost,
-            activeMonths);
-    }
-
-    System.out.println("-----------------------------------------------------------------------------------------------" +
-                       "----------------------------");
-    System.out.printf("Total Annual Revenue for %d: $%.2f%n", currentYear, totalAnnualRevenue);
-    enterToContinue();
-}
 
     public static void merchManagementMenu(Scanner scanner) {
 
-    while (true) {
-        clearConsole();
-        System.out.println("\nMerchandise Management Menu");
-        System.out.println("1. Add new merchandise");
-        System.out.println("2. Edit merchandise");
-        System.out.println("3. Delete merchandise");
-        System.out.println("4. Print all merchandise report and total stock value");
-        System.out.println("5. Back to Admin Menu");
-        System.out.print("Enter your choice: ");
+        while (true) {
+            clearConsole();
+            System.out.println("\nMerchandise Management Menu");
+            System.out.println("1. Add new merchandise");
+            System.out.println("2. Edit merchandise");
+            System.out.println("3. Delete merchandise");
+            System.out.println("4. Print all merchandise report and total stock value");
+            System.out.println("5. Back to Admin Menu");
+            System.out.print("Enter your choice: ");
 
-        String choice = scanner.nextLine();
+            String choice = scanner.nextLine();
 
-        switch (choice) {
-            case "1":
-                addNewMerchandise(scanner);
-                break;
-            case "2":
-                editMerchandise(scanner);
-                break;
-            case "3":
-                deleteMerchandise(scanner);
-                break;
-            case "4":
-                printAllMerchandiseAndStockValue();
-                break;
-            case "5":
-                return;
-            default:
-                System.out.println("Invalid choice. Please try again.");
+            switch (choice) {
+                case "1":
+                    addNewMerchandise(scanner);
+                    break;
+                case "2":
+                    editMerchandise(scanner);
+                    break;
+                case "3":
+                    deleteMerchandise(scanner);
+                    break;
+                case "4":
+                    printAllMerchandiseAndStockValue();
+                    break;
+                case "5":
+                    return;
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+            }
         }
     }
-}
 
     private static void addNewMerchandise(Scanner scanner) {
-    clearConsole();
-    System.out.print("Enter merchandise type name: ");
-    String typeName = scanner.nextLine().trim();
+        clearConsole();
+        System.out.print("Enter merchandise type name: ");
+        String typeName = scanner.nextLine().trim();
 
-    MerchandiseType type = null;
-    ArrayList<MerchandiseType> types = GymMerchDAO.getAllMerchandiseType();
-    for (MerchandiseType t : types) {
-        if (t.getMerchandiseTypeName().equalsIgnoreCase(typeName)) {
-            type = t;
-            break;
-        }
-    }
-
-    if (type == null) {
-        GymMerchDAO.createMerchandiseType(typeName);
-        types = GymMerchDAO.getAllMerchandiseType();
+        MerchandiseType type = null;
+        ArrayList<MerchandiseType> types = GymMerchDAO.getAllMerchandiseType();
         for (MerchandiseType t : types) {
-
             if (t.getMerchandiseTypeName().equalsIgnoreCase(typeName)) {
                 type = t;
                 break;
             }
         }
-    }
 
+        if (type == null) {
+            GymMerchDAO.createMerchandiseType(typeName);
+            types = GymMerchDAO.getAllMerchandiseType();
+            for (MerchandiseType t : types) {
 
-    System.out.print("Enter merchandise name: ");
-    String name = scanner.nextLine().trim();
-
-
-    ArrayList<GymMerchandise> allMerch = GymMerchDAO.getAllGymMerchandise();
-    for (GymMerchandise m : allMerch) {
-        if (m.getMerchandiseName().equalsIgnoreCase(name) && m.getMerchandiseType().getId() == type.getId()) {
-            System.out.println("Merchandise with that name and type already exists.");
-            enterToContinue();
-            return;
+                if (t.getMerchandiseTypeName().equalsIgnoreCase(typeName)) {
+                    type = t;
+                    break;
+                }
+            }
         }
+
+
+        System.out.print("Enter merchandise name: ");
+        String name = scanner.nextLine().trim();
+
+
+        ArrayList<GymMerchandise> allMerch = GymMerchDAO.getAllGymMerchandise();
+        for (GymMerchandise m : allMerch) {
+            if (m.getMerchandiseName().equalsIgnoreCase(name) && m.getMerchandiseType().getId() == type.getId()) {
+                System.out.println("Merchandise with that name and type already exists.");
+                enterToContinue();
+                return;
+            }
+        }
+
+        System.out.print("Enter merchandise price: ");
+        double price = Double.parseDouble(scanner.nextLine());
+
+        System.out.print("Enter quantity in stock: ");
+        int quantity = Integer.parseInt(scanner.nextLine());
+
+        GymMerchDAO.createGymMerchandise(type.getId(), name, price, quantity);
+        System.out.println("Merchandise added successfully.");
+        enterToContinue();
     }
-
-    System.out.print("Enter merchandise price: ");
-    double price = Double.parseDouble(scanner.nextLine());
-
-    System.out.print("Enter quantity in stock: ");
-    int quantity = Integer.parseInt(scanner.nextLine());
-
-    GymMerchDAO.createGymMerchandise(type.getId(), name, price, quantity);
-    System.out.println("Merchandise added successfully.");
-    enterToContinue();
-}
 
     private static void editMerchandise(Scanner scanner) {
         clearConsole();
@@ -517,21 +517,21 @@ enterToContinue();
     }
 
     private static void deleteMerchandise(Scanner scanner) {
-    clearConsole();
-    System.out.print("Enter the ID of the merchandise to delete: ");
-    int id = Integer.parseInt(scanner.nextLine());
+        clearConsole();
+        System.out.print("Enter the ID of the merchandise to delete: ");
+        int id = Integer.parseInt(scanner.nextLine());
 
-    GymMerchandise merch = GymMerchDAO.getGymMerchandiseById(id);
-    if (merch != null) {
-        GymMerchDAO.deleteGymMerchandise(id);
-        System.out.println("Merchandise deleted successfully.");
-    } else {
-        System.out.println("No merchandise found with that ID.");
+        GymMerchandise merch = GymMerchDAO.getGymMerchandiseById(id);
+        if (merch != null) {
+            GymMerchDAO.deleteGymMerchandise(id);
+            System.out.println("Merchandise deleted successfully.");
+        } else {
+            System.out.println("No merchandise found with that ID.");
+        }
+
+        System.out.println("Press Enter to continue...");
+        scanner.nextLine();
     }
-
-    System.out.println("Press Enter to continue...");
-    scanner.nextLine();
-}
 
 
     private static void printAllMerchandiseAndStockValue() {
@@ -565,7 +565,7 @@ enterToContinue();
     enterToContinue();
 }
 
-private static void printAllMerchandise() {
+    private static void printAllMerchandise() {
     clearConsole();
     ArrayList<GymMerchandise> allMerch = GymMerchDAO.getAllGymMerchandise();
 
@@ -655,12 +655,11 @@ private static void printAllMerchandise() {
 
             switch (option) {
                 case 1:
-                    // Browse workout classes
                     showAllWorkoutClasses(roles);
 
                     break;
                 case 2:
-                    // Show membership expenses
+                    showMembershipExpenses(loggedUser, roles);
                     break;
                 case 3:
                     purchaseMembership(scanner, loggedUser);
@@ -729,7 +728,7 @@ private static void printAllMerchandise() {
         } while (option != QUIT_OPTION);
     }
 
-private static void showAllWorkoutClasses(ArrayList<Role> roles) {
+    private static void showAllWorkoutClasses(ArrayList<Role> roles) {
     ArrayList<WorkoutClass> workoutClasses = WorkoutClassesDAO.getWorkoutClasses(-1, roles);
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
@@ -1097,6 +1096,29 @@ private static void showAllWorkoutClasses(ArrayList<Role> roles) {
             System.out.println("There was an error creating your memebrship, please wait a few minutes and try again.");
         }
         
+        enterToContinue();
+    }
+
+    private static void showMembershipExpenses(User loggedUser, ArrayList<Role> roles) {
+        ArrayList<Membership> memberships = MembershipsDAO.getUserMemberships(loggedUser.getUserId(), roles);
+
+        if (memberships.isEmpty()) {
+            System.out.println("No memberships found.");
+            enterToContinue();
+            return;
+        }
+
+        double total = 0.0;
+
+        for (Membership membership : memberships) {
+            int months = java.time.Period.between(membership.getStartDate(), membership.getEndDate()).getMonths();
+            double cost = membership.getMembershipType().getCost();
+
+            total += months * cost;
+        }
+
+        clearConsole();
+        System.out.println("Total membership expenses: $" + total);
         enterToContinue();
     }
 }
