@@ -9,7 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-public class WorkoutClassTypesDAO {
+public class WorkoutClassTypeDAO {
     public static int createWorkoutClassType(String name, String description){
         final String SQL = "INSERT INTO workout_class_types (name, description) VALUES (?,?)";
 
