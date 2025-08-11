@@ -1,0 +1,6 @@
+2025-08-11T11:21:42.309166 - ERROR: SQL error running create_tables.sql.: ERROR: there is no unique or exclusion constraint matching the ON CONFLICT specification
+2025-08-11T11:22:20.341856400 - ERROR: SQL error running create_tables.sql.: ERROR: there is no unique or exclusion constraint matching the ON CONFLICT specification
+2025-08-11T11:23:24.001933100 - ERROR: SQL error running create_tables.sql.: ERROR: there is no unique or exclusion constraint matching the ON CONFLICT specification
+2025-08-11T12:50:09.093366800 - ERROR: Error while adding the new membership.: ERROR: insert or update on table "memberships" violates foreign key constraint "memberships_member_id_fkey"
+  Detail: Key (member_id)=(1) is not present in table "users".
+2025-08-11T12:50:33.137525800 - ERROR: SQL error running create_tables.sql.: ERROR: there is no unique or exclusion constraint matching the ON CONFLICT specification

@@ -12,16 +12,16 @@ import java.sql.Statement;
 
 public class DatabaseConnection {
 
-    // Comment out eachothers connection DONT DELETE so easyer for testing
+    // Comment out eachothers connection DONT DELETE so easier for testing
 
-    private static final String URL = "jdbc:postgresql://localhost:5432/gymManagement";
-    private static final String USER = "postgres";
-    private static final String PASSWORD = "Keyin2024";
-
-    // // Ashton's Connection:
     // private static final String URL = "jdbc:postgresql://localhost:5432/gymManagement";
     // private static final String USER = "postgres";
-    // private static final String PASSWORD = "Youtube5018@";
+    // private static final String PASSWORD = "Keyin2024";
+
+    // // Ashton's Connection:
+    private static final String URL = "jdbc:postgresql://localhost:5432/gymManagement";
+    private static final String USER = "postgres";
+    private static final String PASSWORD = "Youtube5018@";
 
     // Get a connection to the PostgreSQL database
     public static Connection getConnection() {
