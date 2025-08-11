@@ -565,19 +565,32 @@ enterToContinue();
     enterToContinue();
 }
 
-    private static void printAllMerchandise() {
-        ArrayList<GymMerchandise> allMerch = GymMerchDAO.getAllGymMerchandise();
+private static void printAllMerchandise() {
+    clearConsole();
+    ArrayList<GymMerchandise> allMerch = GymMerchDAO.getAllGymMerchandise();
 
-        System.out.println("\n--- All Merchandise ---");
+    System.out.println();
+    System.out.println("                                === All Merchandise ===");
+    System.out.println();
 
-        for (GymMerchandise merch : allMerch) {
-            System.out.println("Name: " + merch.getMerchandiseName());
-            System.out.println("Type: " + merch.getMerchandiseType().getMerchandiseTypeName());
-            System.out.println("Price: $" + merch.getMerchandisePrice());
-            System.out.println("-----------------------------");
-        }
-        enterToContinue();
+    // Table header
+    System.out.printf("%5s  %-25s %-20s %10s%n",
+        "ID", "Name", "Type", "Price");
+    System.out.println("--------------------------------------------------------------------------------");
+
+    // Table rows
+    for (GymMerchandise merch : allMerch) {
+        System.out.printf("%5d  %-25s %-20s %10.2f%n",
+            merch.getId(),
+            merch.getMerchandiseName(),
+            merch.getMerchandiseType().getMerchandiseTypeName(),
+            merch.getMerchandisePrice()
+        );
     }
+
+    System.out.println("--------------------------------------------------------------------------------");
+    enterToContinue();
+}
 
     private static User trainerMenu(Scanner scanner, User loggedUser, ArrayList<Role> roles) {
         int option = 0;
@@ -605,8 +618,6 @@ enterToContinue();
                     break;
                 case 3:
                     printAllMerchandise();
-                    System.out.print("\nPress Enter to continue...");
-                    scanner.nextLine();
                     break;
                 case 4:
                     System.out.println("\nLogging out...\n");
@@ -718,30 +729,40 @@ enterToContinue();
         } while (option != QUIT_OPTION);
     }
 
-    private static void showAllWorkoutClasses(ArrayList<Role> roles) {
-        ArrayList<WorkoutClass> workoutClasses = WorkoutClassesDAO.getWorkoutClasses(-1,roles);
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+private static void showAllWorkoutClasses(ArrayList<Role> roles) {
+    ArrayList<WorkoutClass> workoutClasses = WorkoutClassesDAO.getWorkoutClasses(-1, roles);
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
-        clearConsole();
-        if (workoutClasses.isEmpty()) {
-            System.out.println("\nNo workout classes available.");
-            enterToContinue();
-        } else {
-            // Print all workout classes
-            System.out.println("\nAvailable workout classes:");
-            System.out.println("-------------------------------");
+    clearConsole();
 
-            for (WorkoutClass workoutClass : workoutClasses) {
-                System.out.println("Workout Class ID: " + workoutClass.getId());
-                System.out.println("Workout Class Type: " + workoutClass.getWorkoutClassType().getName());
-                System.out.println("Description: " + workoutClass.getDescription());
-                System.out.println("Trainer: " + workoutClass.getTrainer().getFullName());
-                System.out.println("Date and time: " + workoutClass.getDateTime().format(formatter));
-                System.out.println("-------------------------------");
-            }
-            enterToContinue();
+    if (workoutClasses.isEmpty()) {
+        System.out.println("\nNo workout classes available.");
+        enterToContinue();
+    } else {
+        System.out.println();
+        System.out.println("                                === Available Workout Classes ===");
+        System.out.println();
+
+        // Table header
+        System.out.printf("%5s  %-20s %-35s %-20s %-20s%n",
+            "ID", "Type", "Description", "Trainer", "Date & Time");
+        System.out.println("---------------------------------------------------------------------------------------------------------------");
+
+        // Table rows
+        for (WorkoutClass workoutClass : workoutClasses) {
+            System.out.printf("%5d  %-20s %-35s %-20s %-20s%n",
+                workoutClass.getId(),
+                workoutClass.getWorkoutClassType().getName(),
+                workoutClass.getDescription(),
+                workoutClass.getTrainer().getFullName(),
+                workoutClass.getDateTime().format(formatter)
+            );
         }
+
+        System.out.println("---------------------------------------------------------------------------------------------------------------");
+        enterToContinue();
     }
+}
 
     private static void showTrainerWorkoutClasses(User trainer, ArrayList<Role> roles) {
         clearConsole();
