@@ -147,16 +147,26 @@ ON CONFLICT (email) DO NOTHING;
 
 INSERT INTO memberships (membership_type_id, member_id, membership_start, membership_end)
 VALUES
-  ((SELECT mem_type_id FROM membership_types WHERE mem_type_name = 'Basic'),
-   (SELECT user_id FROM users WHERE username = 'member1'),
-   CURRENT_DATE, NULL),
-  ((SELECT mem_type_id FROM membership_types WHERE mem_type_name = 'Regular'),
-   (SELECT user_id FROM users WHERE username = 'member2'),
-   CURRENT_DATE, NULL),
-  ((SELECT mem_type_id FROM membership_types WHERE mem_type_name = 'Premium'),
-   (SELECT user_id FROM users WHERE username = 'member3'),
-   CURRENT_DATE, NULL)
+  (
+    (SELECT mem_type_id FROM membership_types WHERE mem_type_name = 'Basic'),
+    (SELECT user_id FROM users WHERE username = 'member1'),
+    CURRENT_DATE,
+    CURRENT_DATE + INTERVAL '3 months'
+  ),
+  (
+    (SELECT mem_type_id FROM membership_types WHERE mem_type_name = 'Regular'),
+    (SELECT user_id FROM users WHERE username = 'member2'),
+    CURRENT_DATE,
+    CURRENT_DATE + INTERVAL '6 months'
+  ),
+  (
+    (SELECT mem_type_id FROM membership_types WHERE mem_type_name = 'Premium'),
+    (SELECT user_id FROM users WHERE username = 'member3'),
+    CURRENT_DATE,
+    CURRENT_DATE + INTERVAL '1 year'
+  )
 ON CONFLICT (membership_type_id, member_id) DO NOTHING;
+
 
 INSERT INTO workout_class_types (name, description)
 VALUES
