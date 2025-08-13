@@ -12,11 +12,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.Period;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Scanner;
 import DBManager.DatabaseConnection;
@@ -302,9 +299,12 @@ public class Menu {
             }
             enterToContinue();
         } catch (SQLException e) {
-            System.out.println("Error retrieving users.");
-            enterToContinue();
-            e.printStackTrace();
+          String errorMessage = "Error while retrieving users.";
+
+          // Print error message and log the error
+          System.out.println(errorMessage);
+          LoggingManagement.log(errorMessage + ": " + e.getMessage(), true);
+          enterToContinue();
         }
     }
 
@@ -314,9 +314,14 @@ public class Menu {
         try {
             int userId = Integer.parseInt(scanner.nextLine());
 
+            // Call DAO method that deletes workout classes by trainer ID
+            // Safe to call it even if the user is not a trainer, since we can change the user's role later
+            WorkoutClassesDAO.deleteWorkoutClassByTrainerId(userId);
+
             // Call DAO method that deletes user and their memberships by user ID
             UserDAO.deleteUserAndMembershipsByUserId(userId);
             enterToContinue();
+
 
         } catch (NumberFormatException e) {
             System.out.println("Invalid input. Please enter a valid number.");
