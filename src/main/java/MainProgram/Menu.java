@@ -12,11 +12,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.Period;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Scanner;
 import DBManager.DatabaseConnection;
@@ -322,7 +319,7 @@ private static void deleteUser(Scanner scanner) {
 
         // Call DAO method that deletes user and their memberships by user ID
         UserDAO.deleteUserAndMembershipsByUserId(userId);
-         enterToContinue();
+        enterToContinue();
 
     } catch (NumberFormatException e) {
         System.out.println("Invalid input. Please enter a valid number.");

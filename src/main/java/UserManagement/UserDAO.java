@@ -35,59 +35,101 @@ public class UserDAO {
             ResultSet generatedKeys = preparedStatement.getGeneratedKeys();
             if (generatedKeys.next()) {
                 int generatedId = generatedKeys.getInt(1); // Set the generated user ID
+
                 LoggingManagement.log("New user added with ID: " + generatedId + " and username: " + user.getUsername(), false);
                 return generatedId; // Return the ID of the newly created user
             }
         } catch (SQLException e) {
             System.out.println("Error while adding the new user.\n");
-            LoggingManagement.log(e.getMessage(), true);
+            LoggingManagement.log("Error while adding the new user: " + e.getMessage(), true);
         }
 
         return -1;
     }
 
     public static void updateUser(User user) {
-        // TODO: Implement the update logic
-        System.out.println("User " + user.getUsername() + " updated successfully.");
-    }
+        final String SQL = "UPDATE users SET username = ?, password = ?, first_name = ?, last_name = ?, " +
+                "street_address = ?, city = ?, province = ?, postal_code = ?, email = ?, phone = ?, role_id = ?" +
+                " WHERE user_id = ?";
 
-    public static void deleteUser(User user) {
-        // TODO: Implement the delete logic
-        System.out.println("User " + user.getUsername() + " deleted successfully.");
-    }
+        try {
+            Connection connection = DatabaseConnection.getConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(SQL);
 
-public static void deleteUserAndMembershipsByUserId(int userId) {
-    final String DELETE_MEMBERSHIPS_SQL = "DELETE FROM memberships WHERE member_id = ?";
-    final String DELETE_USER_SQL = "DELETE FROM users WHERE user_id = ?";
+            preparedStatement.setString(1, user.getUsername());
+            preparedStatement.setString(2, user.getPassword());
+            preparedStatement.setString(3, user.getFirstName());
+            preparedStatement.setString(4, user.getLastName());
+            preparedStatement.setString(5, user.getStreetAddress());
+            preparedStatement.setString(6, user.getCity());
+            preparedStatement.setString(7, user.getProvince());
+            preparedStatement.setString(8, user.getPostalCode());
+            preparedStatement.setString(9, user.getEmail());
+            preparedStatement.setString(10, user.getPhone());
+            preparedStatement.setInt(11, user.getRole().getId());
+            preparedStatement.setInt(12, user.getUserId());
 
-    try {
-        Connection connection = DatabaseConnection.getConnection();
+            int rowsUpdated = preparedStatement.executeUpdate();
 
-        // Delete memberships first
-        PreparedStatement deleteMembershipsStmt = connection.prepareStatement(DELETE_MEMBERSHIPS_SQL);
-        deleteMembershipsStmt.setInt(1, userId);
-        int membershipsDeleted = deleteMembershipsStmt.executeUpdate();
+            String message;
+            if (rowsUpdated > 0) {
+                message = "User with ID: " + user.getUserId() + " updated successfully.";
+            } else {
+                message = "No user found with ID: " + user.getUserId();
+            }
 
-        // Delete user
-        PreparedStatement deleteUserStmt = connection.prepareStatement(DELETE_USER_SQL);
-        deleteUserStmt.setInt(1, userId);
-        int usersDeleted = deleteUserStmt.executeUpdate();
+            System.out.println(message);
+            LoggingManagement.log(message, false);
 
-        if (usersDeleted > 0) {
-            System.out.println("User and their memberships deleted successfully.");
-        } else {
-            System.out.println("No user found with ID: " + userId);
+            preparedStatement.close();
+            connection.close();
+        } catch (SQLException e) {
+            String errorMessage = "Error while updating the user with ID: " + user.getUserId();
+
+            System.out.println(errorMessage);
+            LoggingManagement.log(errorMessage + ": " + e.getMessage(), true);
         }
-
-        deleteMembershipsStmt.close();
-        deleteUserStmt.close();
-        connection.close();
-
-    } catch (SQLException e) {
-        System.out.println("Error deleting user.");
-        e.printStackTrace();
     }
-}
+
+
+    public static void deleteUserAndMembershipsByUserId(int userId) {
+        final String DELETE_MEMBERSHIPS_SQL = "DELETE FROM memberships WHERE member_id = ?";
+        final String DELETE_USER_SQL = "DELETE FROM users WHERE user_id = ?";
+
+        try {
+            Connection connection = DatabaseConnection.getConnection();
+
+            // Delete memberships first
+            PreparedStatement deleteMembershipsStmt = connection.prepareStatement(DELETE_MEMBERSHIPS_SQL);
+            deleteMembershipsStmt.setInt(1, userId);
+            int membershipsDeleted = deleteMembershipsStmt.executeUpdate();
+
+            // Delete user
+            PreparedStatement deleteUserStmt = connection.prepareStatement(DELETE_USER_SQL);
+            deleteUserStmt.setInt(1, userId);
+            int usersDeleted = deleteUserStmt.executeUpdate();
+
+            String message;
+            if (usersDeleted > 0) {
+                message = "User and their memberships deleted successfully.";
+            } else {
+                message = "No user found with ID: " + userId;
+            }
+
+            System.out.println(message);
+            LoggingManagement.log(message, false);
+
+            deleteMembershipsStmt.close();
+            deleteUserStmt.close();
+            connection.close();
+
+        } catch (SQLException e) {
+            String errorMessage = "Error while deleting user with ID: " + userId;
+
+            System.out.println(errorMessage);
+            LoggingManagement.log(errorMessage + ": " + e.getMessage(), true);
+        }
+    }
 
     public static User getUserById(int userId, ArrayList<Role> roles) {
         User user = null;
@@ -130,8 +172,10 @@ public static void deleteUserAndMembershipsByUserId(int userId) {
                 System.out.println("No user found with ID: " + userId);
             }
         } catch (SQLException e) {
-            System.out.println("Error while retrieving the user.");
-            LoggingManagement.log(e.getMessage(), true);
+            String errorMessage = "Error while retrieving the user with ID: " + userId;
+
+            System.out.println(errorMessage);
+            LoggingManagement.log(errorMessage + ": " + e.getMessage(), true);
         }
 
         return user;
@@ -178,8 +222,10 @@ public static void deleteUserAndMembershipsByUserId(int userId) {
                 System.out.println("No user found with username: " + username);
             }
         } catch (SQLException e) {
-            System.out.println("Error while retrieving the user.");
-            LoggingManagement.log(e.getMessage(), true);
+            String errorMessage = "Error while retrieving the user with username: " + username;
+
+            System.out.println(errorMessage);
+            LoggingManagement.log(errorMessage + ": " + e.getMessage(), true);
         }
 
         return user;
@@ -204,13 +250,18 @@ public static void deleteUserAndMembershipsByUserId(int userId) {
                 roles.add(role);
             }
         } catch (SQLException e) {
-            System.out.println("Error while retrieving roles.");
-            LoggingManagement.log(e.getMessage(), true);
+            String errorMessage = "Error while retrieving roles from the database.";
+
+            System.out.println(errorMessage);
+            LoggingManagement.log(errorMessage + ": " + e.getMessage(), true);
         }
 
         // Check if roles list is empty
         if (roles.isEmpty()) {
-            System.out.println();
+            String errorMessage = "No roles found in the database.";
+
+            System.out.println(errorMessage);
+            LoggingManagement.log(errorMessage, true);
             throw new RuntimeException("No roles found in the database.");
         }
 
