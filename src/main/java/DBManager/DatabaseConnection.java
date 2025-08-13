@@ -12,7 +12,7 @@ import java.sql.Statement;
 
 public class DatabaseConnection {
 
-    // Comment out eachothers connection DONT DELETE so easyer for testing
+    // Comment out eachothers connection DONT DELETE so easier for testing
 
     private static final String URL = "jdbc:postgresql://localhost:5432/gymManagement";
     private static final String USER = "postgres";
