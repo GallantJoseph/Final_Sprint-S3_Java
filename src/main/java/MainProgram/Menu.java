@@ -309,26 +309,38 @@ public class Menu {
         }
     }
 
-    private static void deleteUser(Scanner scanner) {
-        clearConsole();
-        System.out.print("Enter user ID to delete: ");
-        try {
-            int userId = Integer.parseInt(scanner.nextLine());
+private static void deleteUser(Scanner scanner) {
+    clearConsole();
+    System.out.print("Enter user ID to delete: ");
+    try {
+        int userId = Integer.parseInt(scanner.nextLine());
 
-            // Call DAO method that deletes workout classes by trainer ID
-            // Safe to call it even if the user is not a trainer, since we can change the user's role later
-            WorkoutClassesDAO.deleteWorkoutClassByTrainerId(userId);
+        // Get all roles first
+        ArrayList<Role> roles = UserDAO.getRoles();
 
-            // Call DAO method that deletes user and their memberships by user ID
-            UserDAO.deleteUserAndMembershipsByUserId(userId);
+        // Get the user with roles
+        User user = UserDAO.getUserById(userId, roles);
+        if (user == null) {
             enterToContinue();
-
-
-        } catch (NumberFormatException e) {
-            System.out.println("Invalid input. Please enter a valid number.");
-            enterToContinue();
+            return;
         }
+
+        // If the user is a trainer delete their workout classes first
+        if (user.getRole().getName().equalsIgnoreCase("trainer")) {
+            WorkoutClassesDAO.deleteWorkoutClassByTrainerId(userId);
+            System.out.println("Deleted workout classes for this trainer.");
+        }
+
+        // Then delete the user and their memberships
+        UserDAO.deleteUserAndMembershipsByUserId(userId);
+
+        enterToContinue();
+
+    } catch (NumberFormatException e) {
+        System.out.println("Invalid input. Please enter a valid number.");
+        enterToContinue();
     }
+}
 
     private static void viewAllGymMembershipsAndTotalAnnualRevenue() {
         int currentYear = java.time.LocalDate.now().getYear();
@@ -568,7 +580,8 @@ public class Menu {
 
         System.out.println(
                 "--------------------------------------------------------------------------------------------");
-        System.out.printf("%-75s %15.2f%n", "Total Stock Value:", totalValue);
+                String totalValueStr = "$" + String.format("%.2f", totalValue);
+        System.out.printf("%-75s %15s", "Total Stock Value:", totalValueStr);
         enterToContinue();
     }
 
