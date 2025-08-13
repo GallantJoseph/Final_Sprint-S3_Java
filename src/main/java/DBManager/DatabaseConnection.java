@@ -5,84 +5,134 @@ import Logging.LoggingManagement;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 
 public class DatabaseConnection {
 
-    // Comment out eachothers connection DONT DELETE so easier for testing
-
+    // Database info
     private static final String URL = "jdbc:postgresql://localhost:5432/gymManagement";
+    private static final String DEFAULT_URL = "jdbc:postgresql://localhost:5432/postgres";
     private static final String USER = "postgres";
     private static final String PASSWORD = "Keyin2024";
 
-    // // Ashton's Connection:
-    // private static final String URL = "jdbc:postgresql://localhost:5432/gymManagement";
-    // private static final String USER = "postgres";
-    // private static final String PASSWORD = "Youtube5018@";
+    public static void main(String[] args) {
+        clearConsole();
+        createDatabaseIfNotExists();
+        if (connectAndNotify()) {
+            boolean tablesCreated = createTablesIfNotExist();
+            insertInitialDataIfNeeded(tablesCreated);
+        }
+    }
 
-    // Get a connection to the PostgreSQL database
+    // Simple console clear
+    private static void clearConsole() {
+        try {
+            if (System.getProperty("os.name").toLowerCase().contains("windows")) {
+                new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
+            } else {
+                System.out.print("\033[H\033[2J");
+                System.out.flush();
+            }
+        } catch (Exception e) {
+            // Just print some blank lines
+            for (int i = 0; i < 30; i++) System.out.println();
+        }
+    }
+
+    // Make DB if missing
+    public static void createDatabaseIfNotExists() {
+        try (Connection conn = DriverManager.getConnection(DEFAULT_URL, USER, PASSWORD);
+             Statement stmt = conn.createStatement()) {
+
+            ResultSet rs = stmt.executeQuery("SELECT 1 FROM pg_database WHERE datname = 'gymManagement'");
+            if (!rs.next()) {
+                stmt.executeUpdate("CREATE DATABASE \"gymManagement\"");
+                System.out.println("Database created: gymManagement");
+                LoggingManagement.log("Database created: gymManagement", false);
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Could not create database.");
+            LoggingManagement.log("DB create error: " + e.getMessage(), true);
+        }
+    }
+
+    // Connect to DB
+    public static boolean connectAndNotify() {
+        try (Connection conn = getConnection()) {
+            if (conn != null) {
+                System.out.println("Connected to gymManagement");
+                return true;
+            } else {
+                System.out.println("Cannot connect to gymManagement");
+            }
+        } catch (Exception e) {
+            System.out.println("Connection error");
+            LoggingManagement.log("Connection error: " + e.getMessage(), true);
+        }
+        return false;
+    }
+
+    // Get DB connection
     public static Connection getConnection() {
         Connection conn = null;
         try {
             Class.forName("org.postgresql.Driver");
             conn = DriverManager.getConnection(URL, USER, PASSWORD);
-        } catch (ClassNotFoundException | SQLException e) {
-            String errorMessage = "Error loading PostgreSQL driver or connecting to the database.";
-
-            System.out.println(errorMessage);
-            LoggingManagement.log(errorMessage + ": " + e.getMessage(), true);
+        } catch (Exception e) {
+            System.out.println("Connection failed: " + e.getMessage());
+            LoggingManagement.log("Connection failed: " + e.getMessage(), true);
         }
         return conn;
     }
 
-    // Run the create_tables.sql script to create all necessary tables
-    public static void createTablesIfNotExist() {
-        String sqlFilePath = "scripts/create_tables.sql";
+    // Create tables if missing
+    public static boolean createTablesIfNotExist() {
+        boolean created = false;
+        try (Connection conn = getConnection(); Statement stmt = conn.createStatement()) {
 
-        try (Connection conn = getConnection();
-             Statement stmt = conn.createStatement();
-             BufferedReader br = new BufferedReader(new FileReader(sqlFilePath))) {
+            ResultSet rs = stmt.executeQuery("SELECT to_regclass('public.memberships')");
+            boolean exists = rs.next() && rs.getString(1) != null;
 
-            StringBuilder sqlBuilder = new StringBuilder();
-            String line;
-
-            while ((line = br.readLine()) != null) {
-                sqlBuilder.append(line).append("\n");
-            }
-
-            // Split SQL by semicolon to handle multiple statements easyer
-            String[] sqlStatements = sqlBuilder.toString().split(";");
-
-            for (String sql : sqlStatements) {
-                sql = sql.trim();
-                if (!sql.isEmpty()) {
-                    stmt.execute(sql);
+            if (!exists) {
+                BufferedReader br = new BufferedReader(new FileReader("scripts/create_tables.sql"));
+                String line;
+                String sql = "";
+                while ((line = br.readLine()) != null) {
+                    sql += line + "\n";
                 }
+                br.close();
+
+                for (String s : sql.split(";")) {
+                    s = s.trim();
+                    if (!s.isEmpty()) stmt.execute(s);
+                }
+
+                System.out.println("Tables created");
+                LoggingManagement.log("Tables created", false);
+                created = true;
             }
 
-            String successMessage = "Database tables created/verified successfully.";
-
-            System.out.println(successMessage);
-            LoggingManagement.log(successMessage, false);
-
-        } catch (SQLException e) {
-            String errorMessage = "SQL error running create_tables.sql.";
-
-            System.err.println(errorMessage);
-            LoggingManagement.log(errorMessage + ": " + e.getMessage(), true);
-        } catch (IOException e) {
-            String errorMessage = "Error reading SQL file.";
-
-            System.err.println(errorMessage);
-            LoggingManagement.log(errorMessage + ": " + e.getMessage(), true);
+        } catch (Exception e) {
+            System.out.println("Error creating tables");
+            LoggingManagement.log("Table error: " + e.getMessage(), true);
         }
+        return created;
     }
 
-    // TODO Delete after Run directly for quick setup can be done from main progrm
-    public static void main(String[] args) {
-        createTablesIfNotExist();
+    // Insert initial data
+    public static void insertInitialDataIfNeeded(boolean tablesCreated) {
+        if (!tablesCreated) return;
+
+        try (Connection conn = getConnection(); Statement stmt = conn.createStatement()) {
+            ResultSet rs = stmt.executeQuery("SELECT 1 FROM memberships LIMIT 1");
+            if (!rs.next()) {
+                System.out.println("Initial data inserted (simulated)");
+                LoggingManagement.log("Initial data inserted (simulated)", false);
+            }
+        } catch (Exception e) {
+            System.out.println("Error inserting data");
+            LoggingManagement.log("Data insert error: " + e.getMessage(), true);
+        }
     }
 }
