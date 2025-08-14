@@ -10,7 +10,18 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+/**
+ * UserDAO class.
+ * This class is responsible for handling User database operations in the system.
+ */
 public class UserDAO {
+    /**
+     * Create User
+     * Inserts a new user into the database and returns the generated ID.
+     *
+     * @param user The User object containing user details.
+     * @return The generated ID of the new user, or -1 if the operation failed.
+     */
     public static int createUser(User user) {
         final String SQL = "INSERT INTO users (username, password, first_name, last_name, street_address, city, province, postal_code, email, phone, role_id) VALUES (?,?,?,?,?,?,?,?,?,?,?)";
 
@@ -47,6 +58,12 @@ public class UserDAO {
         return -1;
     }
 
+    /**
+     * Update User
+     * Updates an existing user in the database.
+     *
+     * @param user The User object containing updated user details.
+     */
     public static void updateUser(User user) {
         final String SQL = "UPDATE users SET username = ?, password = ?, first_name = ?, last_name = ?, " +
                 "street_address = ?, city = ?, province = ?, postal_code = ?, email = ?, phone = ?, role_id = ?" +
@@ -91,7 +108,12 @@ public class UserDAO {
         }
     }
 
-
+    /**
+     * Delete User and Memberships
+     * Deletes a user and their associated memberships from the database by user ID.
+     *
+     * @param userId The ID of the user to delete.
+     */
     public static void deleteUserAndMembershipsByUserId(int userId) {
         final String DELETE_MEMBERSHIPS_SQL = "DELETE FROM memberships WHERE member_id = ?";
         final String DELETE_USER_SQL = "DELETE FROM users WHERE user_id = ?";
@@ -131,6 +153,14 @@ public class UserDAO {
         }
     }
 
+    /**
+     * Get User by ID
+     * Retrieves a user from the database by their user ID.
+     *
+     * @param userId The ID of the user to retrieve.
+     * @param roles  The list of roles to match against the user's role ID.
+     * @return The User object if found, or null if not found.
+     */
     public static User getUserById(int userId, ArrayList<Role> roles) {
         User user = null;
         final String SQL = "SELECT * FROM users WHERE user_id = ?";
@@ -181,6 +211,14 @@ public class UserDAO {
         return user;
     }
 
+    /**
+     * Get User by Username
+     * Retrieves a user from the database by their username.
+     *
+     * @param username The username of the user to retrieve.
+     * @param roles    The list of roles to match against the user's role ID.
+     * @return The User object if found, or null if not found.
+     */
     public static User getUserByUsername(String username, ArrayList<Role> roles) {
         User user = null;
         final String SQL = "SELECT * FROM users WHERE username = ?";
@@ -231,6 +269,12 @@ public class UserDAO {
         return user;
     }
 
+    /**
+     * Get Roles
+     * Retrieves all roles from the database.
+     *
+     * @return An ArrayList of Role objects representing all roles.
+     */
     public static ArrayList<Role> getRoles() {
         // Get all roles from the database
         ArrayList<Role> roles = new ArrayList<>();
