@@ -96,7 +96,7 @@ public class Menu {
                 }
                 switch (roleName.toLowerCase()) {
                     case "admin":
-                        loggedUser = adminMenu(scanner, loggedUser);
+                        loggedUser = adminMenu(scanner, loggedUser, roles);
                         break;
                     case "trainer":
                         loggedUser = trainerMenu(scanner, loggedUser, roles);
@@ -209,7 +209,7 @@ public class Menu {
         return user;
     }
 
-    private static User adminMenu(Scanner scanner, User loggedUser) {
+    private static User adminMenu(Scanner scanner, User loggedUser,  ArrayList<Role> roles) {
         int option = 0;
         final int QUIT_OPTION = 5;
 
@@ -231,7 +231,7 @@ public class Menu {
                         viewAllUsers();
                         break;
                     case 2:
-                        deleteUser(scanner);
+                        deleteUser(scanner, roles);
                         break;
                     case 3:
                         viewAllGymMembershipsAndTotalAnnualRevenue();
@@ -309,18 +309,16 @@ public class Menu {
         }
     }
 
-private static void deleteUser(Scanner scanner) {
+private static void deleteUser(Scanner scanner, ArrayList<Role> roles) {
     clearConsole();
     System.out.print("Enter user ID to delete: ");
     try {
         int userId = Integer.parseInt(scanner.nextLine());
 
-        // Get all roles first
-        ArrayList<Role> roles = UserDAO.getRoles();
-
-        // Get the user with roles
         User user = UserDAO.getUserById(userId, roles);
+
         if (user == null) {
+            System.out.println("User not found.");
             enterToContinue();
             return;
         }
@@ -333,6 +331,7 @@ private static void deleteUser(Scanner scanner) {
 
         // Then delete the user and their memberships
         UserDAO.deleteUserAndMembershipsByUserId(userId);
+        System.out.println("User deleted successfully.");
 
         enterToContinue();
 
