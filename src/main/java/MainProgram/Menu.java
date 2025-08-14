@@ -34,28 +34,48 @@ import WorkoutClassManagement.WorkoutClassesDAO;
 import WorkoutClasses.WorkoutClass;
 import WorkoutClasses.WorkoutClassType;
 
-
+/**
+ * Menu class.
+ * This class is responsible for handling the main menu and user interactions in the Gym Management System.
+ * It provides options for user registration, login, and role-specific functionalities.
+ */
 public class Menu {
-
     private static final Scanner scanner = new Scanner(System.in);
 
+    /**
+     * Prompts the user to press Enter to continue.
+     * This method is used to pause the console output until the user presses Enter.
+     */
     public static void enterToContinue() {
         System.out.println();
         System.out.print("Press Enter to continue...");
         scanner.nextLine();
     }
 
+    /**
+     * Clears the console output.
+     * This method uses ANSI escape codes to clear the console screen.
+     */
     public static void clearConsole() {
         System.out.print("\033[H\033[2J");
         System.out.flush();
     }
 
+    /**
+     * Displays the main menu and handles user interactions.
+     * If no user is logged in, it shows options for registration and login.
+     * If a user is logged in, it displays role-specific menus.
+     *
+     * @param scanner      The Scanner object for user input.
+     * @param roles        The list of roles available in the system.
+     * @param loggedUser   The currently logged-in user, or null if no user is logged in.
+     */
     public static void mainMenu(Scanner scanner, ArrayList<Role> roles, User loggedUser) {
         int option = 0;
         final int QUIT_OPTION = 3;
-        ;
 
-        // If no user is logged in. Show Login/Registration
+        // If no user is logged in, show the main menu options (login and registration)
+        // If a user is logged in, show the Role-specific menu
         do {
             clearConsole();
             if (loggedUser == null) {
@@ -86,7 +106,7 @@ public class Menu {
                         enterToContinue();
                 }
             } else {
-                String roleName = null;
+                String roleName = "";
 
                 for (Role role : roles) {
                     if (loggedUser.getRole().getId() == role.getId()) {
@@ -112,6 +132,13 @@ public class Menu {
         } while (option != QUIT_OPTION);
     }
 
+    /**
+     * Registers a new user by collecting their details and saving them to the database.
+     * Validates user input for each field and allows the user to select a role.
+     *
+     * @param scanner The Scanner object for user input.
+     * @param roles   The list of roles available in the system.
+     */
     private static void registerMenu(Scanner scanner, ArrayList<Role> roles) {
         String username = null;
         String password = null;
@@ -186,6 +213,14 @@ public class Menu {
         UserService.register(user);
     }
 
+    /**
+     * Displays the login menu and prompts the user to enter their credentials.
+     * Validates the credentials against the database and returns the logged-in user.
+     *
+     * @param scanner The Scanner object for user input.
+     * @param roles   The list of roles available in the system.
+     * @return The logged-in user if credentials are valid, otherwise null.
+     */
     private static User loginMenu(Scanner scanner, ArrayList<Role> roles) {
         String username;
         String password;
@@ -209,6 +244,15 @@ public class Menu {
         return user;
     }
 
+    /**
+     * Displays the admin menu and provides options for managing users, memberships, and merchandise.
+     * Allows the admin to view all users, delete a user, view gym memberships, and manage merchandise.
+     *
+     * @param scanner    The Scanner object for user input.
+     * @param loggedUser The currently logged-in user.
+     * @param roles      The list of roles available in the system.
+     * @return The logged-in user after performing admin actions, or null if logged out.
+     */
     private static User adminMenu(Scanner scanner, User loggedUser,  ArrayList<Role> roles) {
         int option = 0;
         final int QUIT_OPTION = 5;
@@ -259,6 +303,10 @@ public class Menu {
         return loggedUser;
     }
 
+    /**
+     * Displays all users and their contact information in a formatted table.
+     * Retrieves user data from the database and prints it to the console.
+     */
     private static void viewAllUsers() {
         ArrayList<Role> roles = UserDAO.getRoles();
         final String SQL = "SELECT * FROM users";
@@ -309,38 +357,49 @@ public class Menu {
         }
     }
 
-private static void deleteUser(Scanner scanner, ArrayList<Role> roles) {
-    clearConsole();
-    System.out.print("Enter user ID to delete: ");
-    try {
-        int userId = Integer.parseInt(scanner.nextLine());
+    /**
+     * Deletes a user by their ID and removes their associated workout classes if they are a trainer.
+     * Prompts the admin to enter the user ID to delete and handles any errors during deletion.
+     *
+     * @param scanner The Scanner object for user input.
+     * @param roles   The list of roles available in the system.
+     */
+    private static void deleteUser(Scanner scanner, ArrayList<Role> roles) {
+        clearConsole();
+        System.out.print("Enter user ID to delete: ");
+        try {
+            int userId = Integer.parseInt(scanner.nextLine());
 
-        User user = UserDAO.getUserById(userId, roles);
+            User user = UserDAO.getUserById(userId, roles);
 
-        if (user == null) {
-            System.out.println("User not found.");
+            if (user == null) {
+                System.out.println("User not found.");
+                enterToContinue();
+                return;
+            }
+
+            // If the user is a trainer delete their workout classes first
+            if (user.getRole().getName().equalsIgnoreCase("trainer")) {
+                WorkoutClassesDAO.deleteWorkoutClassByTrainerId(userId);
+                System.out.println("Deleted workout classes for this trainer.");
+            }
+
+            // Then delete the user and their memberships
+            UserDAO.deleteUserAndMembershipsByUserId(userId);
+            System.out.println("User deleted successfully.");
+
             enterToContinue();
-            return;
+
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid input. Please enter a valid number.");
+            enterToContinue();
         }
-
-        // If the user is a trainer delete their workout classes first
-        if (user.getRole().getName().equalsIgnoreCase("trainer")) {
-            WorkoutClassesDAO.deleteWorkoutClassByTrainerId(userId);
-            System.out.println("Deleted workout classes for this trainer.");
-        }
-
-        // Then delete the user and their memberships
-        UserDAO.deleteUserAndMembershipsByUserId(userId);
-        System.out.println("User deleted successfully.");
-
-        enterToContinue();
-
-    } catch (NumberFormatException e) {
-        System.out.println("Invalid input. Please enter a valid number.");
-        enterToContinue();
     }
-}
 
+    /**
+     * Displays all gym memberships and calculates the total annual revenue for the current year.
+     * Prints a formatted table with membership details and the total revenue.
+     */
     private static void viewAllGymMembershipsAndTotalAnnualRevenue() {
         int currentYear = java.time.LocalDate.now().getYear();
         ArrayList<Role> roles = UserDAO.getRoles();
@@ -412,6 +471,12 @@ private static void deleteUser(Scanner scanner, ArrayList<Role> roles) {
         enterToContinue();
     }
 
+    /**
+     * Displays the merchandise management menu and provides options for adding, editing, deleting,
+     * and printing merchandise reports.
+     *
+     * @param scanner The Scanner object for user input.
+     */
     public static void merchManagementMenu(Scanner scanner) {
 
         while (true) {
@@ -447,6 +512,12 @@ private static void deleteUser(Scanner scanner, ArrayList<Role> roles) {
         }
     }
 
+    /**
+     * Adds new merchandise to the system by prompting the user for details.
+     * Validates the merchandise type and checks for duplicates before adding.
+     *
+     * @param scanner The Scanner object for user input.
+     */
     private static void addNewMerchandise(Scanner scanner) {
         clearConsole();
         System.out.print("Enter merchandise type name: ");
@@ -496,6 +567,12 @@ private static void deleteUser(Scanner scanner, ArrayList<Role> roles) {
         enterToContinue();
     }
 
+    /**
+     * Edits existing merchandise by prompting the user for new details.
+     * Validates the merchandise ID and updates the merchandise information.
+     *
+     * @param scanner The Scanner object for user input.
+     */
     private static void editMerchandise(Scanner scanner) {
         clearConsole();
         System.out.print("Enter the ID of the merchandise to edit: ");
@@ -533,6 +610,12 @@ private static void deleteUser(Scanner scanner, ArrayList<Role> roles) {
         enterToContinue();
     }
 
+    /**
+     * Deletes merchandise by its ID and confirms the deletion.
+     * Prompts the user for the merchandise ID to delete and handles any errors during deletion.
+     *
+     * @param scanner The Scanner object for user input.
+     */
     private static void deleteMerchandise(Scanner scanner) {
         clearConsole();
         System.out.print("Enter the ID of the merchandise to delete: ");
@@ -550,6 +633,10 @@ private static void deleteUser(Scanner scanner, ArrayList<Role> roles) {
         scanner.nextLine();
     }
 
+    /**
+     * Prints all merchandise and their total stock value in a formatted table.
+     * Calculates the total value of all merchandise in stock.
+     */
     private static void printAllMerchandiseAndStockValue() {
         clearConsole();
         ArrayList<GymMerchandise> allMerch = GymMerchDAO.getAllGymMerchandise();
@@ -584,6 +671,10 @@ private static void deleteUser(Scanner scanner, ArrayList<Role> roles) {
         enterToContinue();
     }
 
+    /**
+     * Prints all merchandise in a formatted table.
+     * Displays the merchandise ID, name, type, and price.
+     */
     private static void printAllMerchandise() {
         clearConsole();
         ArrayList<GymMerchandise> allMerch = GymMerchDAO.getAllGymMerchandise();
@@ -610,6 +701,15 @@ private static void deleteUser(Scanner scanner, ArrayList<Role> roles) {
         enterToContinue();
     }
 
+    /**
+     * Displays the trainer menu and provides options for managing workout classes, purchasing memberships,
+     * and viewing gym merchandise.
+     *
+     * @param scanner    The Scanner object for user input.
+     * @param loggedUser The currently logged-in user.
+     * @param roles      The list of roles available in the system.
+     * @return The logged-in user after performing trainer actions, or null if logged out.
+     */
     private static User trainerMenu(Scanner scanner, User loggedUser, ArrayList<Role> roles) {
         int option = 0;
         final int QUIT_OPTION = 4;
@@ -652,6 +752,15 @@ private static void deleteUser(Scanner scanner, ArrayList<Role> roles) {
         return loggedUser;
     }
 
+    /**
+     * Displays the member menu and provides options for browsing workout classes, viewing membership expenses,
+     * purchasing memberships, and viewing gym merchandise.
+     *
+     * @param scanner    The Scanner object for user input.
+     * @param loggedUser The currently logged-in user.
+     * @param roles      The list of roles available in the system.
+     * @return The logged-in user after performing member actions, or null if logged out.
+     */
     private static User memberMenu(Scanner scanner, User loggedUser, ArrayList<Role> roles) {
         int option;
         final int QUIT_OPTION = 5;
@@ -702,6 +811,14 @@ private static void deleteUser(Scanner scanner, ArrayList<Role> roles) {
         return loggedUser;
     }
 
+    /**
+     * Manages workout classes for trainers, allowing them to create, update, delete, and view their classes.
+     * Provides a menu for trainers to perform these actions.
+     *
+     * @param scanner    The Scanner object for user input.
+     * @param loggedUser The currently logged-in trainer user.
+     * @param roles      The list of roles available in the system.
+     */
     private static void manageWorkoutClasses(Scanner scanner, User loggedUser, ArrayList<Role> roles) {
         int option = 0;
         final int QUIT_OPTION = 5;
@@ -742,6 +859,12 @@ private static void deleteUser(Scanner scanner, ArrayList<Role> roles) {
         } while (option != QUIT_OPTION);
     }
 
+    /**
+     * This method retrieves and displays all available workout classes from the database.
+     * It formats the output in a table with columns for ID, type, description, trainer, and date & time.
+     *
+     * @param roles The list of roles available in the system to filter workout classes.
+     */
     private static void showAllWorkoutClasses(ArrayList<Role> roles) {
         ArrayList<WorkoutClass> workoutClasses = WorkoutClassesDAO.getWorkoutClasses(-1, roles);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
@@ -778,6 +901,13 @@ private static void deleteUser(Scanner scanner, ArrayList<Role> roles) {
         }
     }
 
+    /**
+     * Displays the workout classes for a specific trainer.
+     * Retrieves the workout classes from the database and prints them in a formatted table.
+     *
+     * @param trainer The trainer whose workout classes are to be displayed.
+     * @param roles   The list of roles available in the system to filter workout classes.
+     */
     private static void showTrainerWorkoutClasses(User trainer, ArrayList<Role> roles) {
         clearConsole();
         ArrayList<WorkoutClass> workoutClasses = WorkoutClassesDAO.getWorkoutClasses(trainer.getUserId(), roles);
@@ -803,6 +933,13 @@ private static void deleteUser(Scanner scanner, ArrayList<Role> roles) {
         }
     }
 
+    /**
+     * Prompts the user to enter details for a new workout class, including type, description, date, and time.
+     * Validates the input and creates the new workout class in the database.
+     *
+     * @param scanner    The Scanner object for user input.
+     * @param loggedUser The currently logged-in user who is creating the workout class.
+     */
     private static void createNewWorkoutClass(Scanner scanner, User loggedUser) {
         WorkoutClassType workoutClassType = null;
         int workoutClassTypeId;
@@ -908,6 +1045,13 @@ private static void deleteUser(Scanner scanner, ArrayList<Role> roles) {
         }
     }
 
+    /**
+     * Updates an existing workout class by prompting the user for new details.
+     * Validates the input and updates the workout class in the database.
+     *
+     * @param scanner    The Scanner object for user input.
+     * @param loggedUser The currently logged-in user who is updating the workout class.
+     */
     private static void updateWorkoutClass(Scanner scanner, User loggedUser) {
         WorkoutClass workoutClass = null;
 
@@ -959,6 +1103,7 @@ private static void deleteUser(Scanner scanner, ArrayList<Role> roles) {
             System.out.println("\nEnter the description for the new workout class type:");
             workoutTypeDescription = scanner.nextLine();
 
+            // Validate date and time input
             do {
                 System.out.println("\nEnter the date of the workout class (YYYY-MM-DD):");
                 workoutClassDate = scanner.nextLine();
@@ -975,6 +1120,7 @@ private static void deleteUser(Scanner scanner, ArrayList<Role> roles) {
                 }
             } while (workoutClassDateTime == null);
 
+            // Create the new workout class type in the database
             try {
                 workoutTypeId = WorkoutClassTypeDAO.createWorkoutClassType(workoutTypeName, workoutTypeDescription);
 
@@ -983,7 +1129,6 @@ private static void deleteUser(Scanner scanner, ArrayList<Role> roles) {
                 workoutClass.setWorkoutClassType(workoutClassType);
 
                 // Print success message
-
                 String successMessage = "Workout class type created successfully with ID: " + workoutTypeId;
 
                 System.out.println(successMessage);
@@ -1000,11 +1145,13 @@ private static void deleteUser(Scanner scanner, ArrayList<Role> roles) {
         }
 
         try {
+            // Update the workout class in the database with new values
             WorkoutClassesDAO.updateWorkoutClass(workoutClassId, workoutClass.getWorkoutClassType().getId(),
                     workoutClass.getDescription(), loggedUser.getUserId(), workoutClassDateTime);
 
             System.out.println("\nWorkout class updated successfully.\n");
 
+            // Print success message
             LoggingManagement.log("Workout class with ID: " + workoutClassId + " updated successfully.", false);
             enterToContinue();
         } catch (Exception e) {
@@ -1016,6 +1163,13 @@ private static void deleteUser(Scanner scanner, ArrayList<Role> roles) {
         }
     }
 
+    /**
+     * Deletes a workout class by its ID and confirms the deletion.
+     * Prompts the user for the workout class ID to delete and handles any errors during deletion.
+     *
+     * @param scanner    The Scanner object for user input.
+     * @param loggedUser The currently logged-in user who is deleting the workout class.
+     */
     private static void deleteWorkoutClass(Scanner scanner, User loggedUser) {
         int workoutClassId;
         int deletedRows;
@@ -1044,6 +1198,13 @@ private static void deleteUser(Scanner scanner, ArrayList<Role> roles) {
         }
     }
 
+    /**
+     * Allows a user to purchase a membership by selecting a membership type and duration.
+     * Prompts the user for input and creates the membership in the database.
+     *
+     * @param scanner    The Scanner object for user input.
+     * @param loggedUser The currently logged-in user who is purchasing the membership.
+     */
     private static void purchaseMembership(Scanner scanner, User loggedUser) {
         // int Type id, int member id, localdate start date, localdate end date
         int memberID = loggedUser.getUserId();
@@ -1112,64 +1273,71 @@ private static void deleteUser(Scanner scanner, ArrayList<Role> roles) {
         enterToContinue();
     }
 
-private static void showMembershipExpenses(User loggedUser, ArrayList<Role> roles) {
-    // get all memberships for the user
-    ArrayList<Membership> memberships = MembershipsDAO.getUserMemberships(loggedUser.getUserId(), roles);
+    /**
+     * Displays a receipt of all memberships for the logged-in user, including costs and total expenses.
+     * Retrieves the memberships from the database and formats the output in a table.
+     *
+     * @param loggedUser The currently logged-in user whose membership expenses are to be displayed.
+     * @param roles      The list of roles available in the system to filter memberships.
+     */
+    private static void showMembershipExpenses(User loggedUser, ArrayList<Role> roles) {
+        // get all memberships for the user
+        ArrayList<Membership> memberships = MembershipsDAO.getUserMemberships(loggedUser.getUserId(), roles);
 
-    if (memberships.isEmpty()) {
-        System.out.println("No memberships found.");
+        if (memberships.isEmpty()) {
+            System.out.println("No memberships found.");
+            enterToContinue();
+            return;
+        }
+
+        clearConsole();
+        System.out.println("=== Membership Expenses Receipt ===\n");
+
+        double totalExpenses = 0;
+
+        // headings
+        System.out.printf("%-20s %-15s %-15s %-15s%n", "Membership Type", "Cost/Month", "Term Length", "Total Cost");
+        System.out.println("-------------------------------------------------------------------");
+
+        for (Membership membership : memberships) {
+
+            LocalDate startDate = membership.getStartDate();
+            LocalDate endDate = membership.getEndDate();
+            MembershipType type = membership.getMembershipType();
+
+            if (endDate == null) {
+                System.out.println(type.getName() + " - ERROR: No end date");
+                continue;
+            }
+
+            // calculate exact number of months between start and end
+            int termMonths = (endDate.getYear() - startDate.getYear()) * 12
+                           + (endDate.getMonthValue() - startDate.getMonthValue());
+
+            // adjust if end day is before start day
+            if (endDate.getDayOfMonth() < startDate.getDayOfMonth()) {
+                termMonths--;
+            }
+
+            // calculate costs
+            double monthlyCost = type.getCost();
+            double totalCost = monthlyCost * termMonths;
+
+            totalExpenses += totalCost;
+
+            // print each membership row
+            System.out.printf("%-20s $%-14.2f %-15s $%-14.2f%n",
+                    type.getName(),
+                    monthlyCost,
+                    termMonths + " months",
+                    totalCost);
+        }
+
+        System.out.println("-------------------------------------------------------------------");
+        System.out.printf("Total Membership Expenses: $%.2f%n", totalExpenses);
+
         enterToContinue();
-        return;
     }
-
-    clearConsole();
-    System.out.println("=== Membership Expenses Receipt ===\n");
-
-    double totalExpenses = 0;
-
-    // headings
-    System.out.printf("%-20s %-15s %-15s %-15s%n", "Membership Type", "Cost/Month", "Term Length", "Total Cost");
-    System.out.println("-------------------------------------------------------------------");
-
-    for (Membership membership : memberships) {
-
-        LocalDate startDate = membership.getStartDate();
-        LocalDate endDate = membership.getEndDate();
-        MembershipType type = membership.getMembershipType();
-
-        if (endDate == null) {
-            System.out.println(type.getName() + " - ERROR: No end date");
-            continue;
-        }
-
-        // calculate exact number of months between start and end
-        int termMonths = (endDate.getYear() - startDate.getYear()) * 12
-                       + (endDate.getMonthValue() - startDate.getMonthValue());
-
-        // adjust if end day is before start day
-        if (endDate.getDayOfMonth() < startDate.getDayOfMonth()) {
-            termMonths--;
-        }
-
-        // calculate costs
-        double monthlyCost = type.getCost();
-        double totalCost = monthlyCost * termMonths;
-
-        totalExpenses += totalCost;
-
-        // print each membership row
-        System.out.printf("%-20s $%-14.2f %-15s $%-14.2f%n",
-                type.getName(),
-                monthlyCost,
-                termMonths + " months",
-                totalCost);
-    }
-
-    System.out.println("-------------------------------------------------------------------");
-    System.out.printf("Total Membership Expenses: $%.2f%n", totalExpenses);
-
-    enterToContinue();
-}
 
 }
 

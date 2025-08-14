@@ -11,8 +11,20 @@ import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
+/**
+ * MembershipsDAO class.
+ * This class is responsible for handling Membership database operations in the system.
+ */
 public class MembershipsDAO {
-
+    /**
+     * Creates a new membership in the database.
+     *
+     * @param membershipTypeId The ID of the membership type.
+     * @param memberId         The ID of the member.
+     * @param startDate        The start date of the membership.
+     * @param endDate          The end date of the membership (can be null).
+     * @return The ID of the newly created membership, or -1 if the operation failed.
+     */
     public static int createMembership(int membershipTypeId, int memberId, LocalDate startDate, LocalDate endDate) {
         final String SQL = "INSERT INTO memberships (membership_type_id, member_id, membership_start, membership_end) VALUES (?, ?, ?, ?)";
 
@@ -52,6 +64,13 @@ public class MembershipsDAO {
         return -1; // Return -1 to indicate failure
     }
 
+    /**
+     * Retrieves a membership by its ID.
+     *
+     * @param membershipId The ID of the membership to retrieve.
+     * @param roles        The list of roles for user retrieval.
+     * @return The Membership object if found, otherwise null.
+     */
     public static Membership getMembershipById(int membershipId, ArrayList<Role> roles) {
         Membership membership = null;
         final String SQL = "SELECT * FROM memberships WHERE membership_id = ?";
@@ -83,6 +102,12 @@ public class MembershipsDAO {
         return membership;
     }
 
+    /**
+     * Retrieves all memberships from the database.
+     *
+     * @param roles The list of roles for user retrieval.
+     * @return A list of all Membership objects.
+     */
     public static ArrayList<Membership> getAllMemberships(ArrayList<Role> roles) {
         ArrayList<Membership> memberships = new ArrayList<>();
         final String SQL = "SELECT * FROM memberships";
@@ -113,6 +138,13 @@ public class MembershipsDAO {
         return memberships;
     }
 
+    /**
+     * Retrieves all memberships for a specific user.
+     *
+     * @param memberId The ID of the member whose memberships are to be retrieved.
+     * @param roles    The list of roles for user retrieval.
+     * @return A list of Membership objects associated with the specified user.
+     */
     public static ArrayList<Membership> getUserMemberships(int memberId, ArrayList<Role> roles) {
         ArrayList<Membership> memberships = new ArrayList<>();
         final String SQL = "SELECT * FROM memberships WHERE member_id = ?";
@@ -144,6 +176,16 @@ public class MembershipsDAO {
         return memberships;
     }
 
+    /**
+     * Updates an existing membership in the database.
+     *
+     * @param membershipId     The ID of the membership to update.
+     * @param membershipTypeId The new membership type ID.
+     * @param memberId         The new member ID.
+     * @param startDate        The new start date of the membership.
+     * @param endDate          The new end date of the membership (can be null).
+     * @return The number of affected rows (should be 1 if successful, 0 if no such membership exists).
+     */
     public static int updateMembership(int membershipId, int membershipTypeId, int memberId, LocalDate startDate, LocalDate endDate) {
         final String SQL = "UPDATE memberships SET membership_type_id = ?, member_id = ?, membership_start = ?, membership_end = ? WHERE membership_id = ?";
         int affectedRows = 0;
@@ -176,6 +218,12 @@ public class MembershipsDAO {
         return affectedRows;
     }
 
+    /**
+     * Deletes a membership from the database.
+     *
+     * @param membershipId The ID of the membership to delete.
+     * @return The number of affected rows (should be 1 if successful, 0 if no such membership exists).
+     */
     public static int deleteMembership(int membershipId) {
         final String SQL = "DELETE FROM memberships WHERE membership_id = ?";
         int affectedRows = 0;

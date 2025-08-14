@@ -8,9 +8,16 @@ import Logging.LoggingManagement;
 import java.sql.*;
 import java.util.ArrayList;
 
+/**
+ * This class is responsible for handling Gym Merchandise operations from the database.
+ * It provides methods to create, retrieve, update, and delete GymMerchandise and MerchandiseTypes.
+ */
 public class GymMerchDAO {
 
-    // This method adds a new type of gym merchandise to the database
+    /**
+     * Creates a new merchandise type in the database.
+     * @param typeName the name of the merchandise type to be added
+     */
     public static void createMerchandiseType(String typeName) {
         final String query = "INSERT INTO merchandise_types (merchandise_type_name) VALUES (?)";
 
@@ -30,7 +37,13 @@ public class GymMerchDAO {
         }
     }
 
-    // This method adds a new gym product (like gear, drinks, or food) to the database
+    /**
+     * Creates a new gym merchandise item in the database. (ex: gear, drinks, or food)
+     * @param typeId the ID of the merchandise type
+     * @param name the name of the merchandise
+     * @param price the price of the merchandise
+     * @param quantity the quantity of the merchandise in stock
+     */
     public static void createGymMerchandise(int typeId, String name, double price, int quantity) {
         final String query = "INSERT INTO gym_merchandise (merchandise_type_id, merchandise_name, merchandise_price, quantity_in_stock) VALUES (?, ?, ?, ?)";
 
@@ -53,7 +66,11 @@ public class GymMerchDAO {
         }
     }
 
-    // This method finds a single merchandise type by using its identification number
+    /**
+     * Retrieves a merchandise type by its ID.
+     * @param typeId the ID of the merchandise type to retrieve
+     * @return MerchandiseType object if found, otherwise null
+     */
     public static MerchandiseType getMerchandiseTypeById(int typeId) {
         MerchandiseType type = null;
         final String query = "SELECT * FROM merchandise_types WHERE merchandise_type_id = ?";
@@ -81,7 +98,10 @@ public class GymMerchDAO {
         return type;
     }
 
-    // This method gets every gym merchandise item from the database
+    /**
+     * Retrieves all gym merchandise items from the database.
+     * @return an ArrayList of GymMerchandise objects
+     */
     public static ArrayList<GymMerchandise> getAllGymMerchandise() {
         ArrayList<GymMerchandise> merchandiseList = new ArrayList<>();
 
@@ -122,7 +142,11 @@ public class GymMerchDAO {
         return merchandiseList;
     }
 
-    // This method gets one gym merchandise item using its identification number
+    /**
+     * Retrieves a gym merchandise item by its ID.
+     * @param merchId the ID of the merchandise to retrieve
+     * @return GymMerchandise object if found, otherwise null
+     */
     public static GymMerchandise getGymMerchandiseById(int merchId) {
         GymMerchandise merchandise = null;
 
@@ -164,7 +188,10 @@ public class GymMerchDAO {
         return merchandise;
     }
 
-    // This method updates an existing gym merchandise item with new details
+    /**
+     * Updates an existing gym merchandise item in the database.
+     * @param merch the GymMerchandise object containing updated details
+     */
     public static void updateGymMerchandise(GymMerchandise merch) {
         final String query =
                 "UPDATE gym_merchandise " +
@@ -195,7 +222,10 @@ public class GymMerchDAO {
         }
     }
 
-    // This method deletes a gym merchandise item by its identification number
+    /**
+     * Deletes a gym merchandise item from the database by its ID.
+     * @param merchId the ID of the merchandise to delete
+     */
     public static void deleteGymMerchandise(int merchId) {
         final String query = "DELETE FROM gym_merchandise WHERE merchandise_id = ?";
 
@@ -219,7 +249,10 @@ public class GymMerchDAO {
         }
     }
 
-    // This method calculates the total price of all products that are in stock
+    /**
+     * Calculates the total value of all merchandise in stock.
+     * @return the total stock value as a double
+     */
     public static double calculateTotalStockValue() {
         final String query = "SELECT SUM(merchandise_price * quantity_in_stock) AS total_value FROM gym_merchandise";
 
@@ -241,7 +274,10 @@ public class GymMerchDAO {
         return 0.0;
     }
 
-    // This method gets a list of all the merchandise types from the database
+    /**
+     * Retrieves all merchandise types from the database.
+     * @return an ArrayList of MerchandiseType objects
+     */
     public static ArrayList<MerchandiseType> getAllMerchandiseType() {
         ArrayList<MerchandiseType> types = new ArrayList<>();
         final String query = "SELECT * FROM merchandise_types";
@@ -268,7 +304,10 @@ public class GymMerchDAO {
         return types;
     }
 
-    // This method deletes a merchandise type by its identification number
+    /**
+     * Deletes a merchandise type from the database by its ID.
+     * @param typeId the ID of the merchandise type to delete
+     */
     public static void deleteMerchandiseType(int typeId) {
         final String query = "DELETE FROM merchandise_types WHERE merchandise_type_id = ?";
 

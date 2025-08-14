@@ -6,7 +6,22 @@ import Users.User;
 import org.mindrot.jbcrypt.BCrypt;
 import java.util.ArrayList;
 
+/**
+ * UserService class provides methods for user login and registration.
+ * It interacts with UserDAO to perform database operations.
+ * It uses BCrypt for password hashing and verification.
+ */
 public class UserService {
+    /**
+     * Logs in a user with the provided username and password.
+     * Validates credentials and returns the user object if successful.
+     * Logs success or failure messages.
+     *
+     * @param username the username of the user
+     * @param password the password of the user
+     * @param roles    the list of roles available in the system
+     * @return User object if login is successful, null otherwise
+     */
     public static User login(String username, String password, ArrayList<Role> roles) {
         try {
             User user = UserDAO.getUserByUsername(username, roles);
@@ -34,6 +49,13 @@ public class UserService {
         return null; // Return null if login fails
     }
 
+    /**
+     * Registers a new user in the system.
+     * Hashes the password using BCrypt before saving.
+     * Logs success or error messages.
+     *
+     * @param user the user to register
+     */
     public static void register(User user) {
         try {
             user.setPassword(BCrypt.hashpw(user.getPassword(), BCrypt.gensalt()));

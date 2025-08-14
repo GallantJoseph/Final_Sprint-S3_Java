@@ -13,7 +13,20 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 
+/**
+ * WorkoutClassesDAO class.
+ * This class is responsible for handling Workout Class database operations in the system.
+ */
 public class WorkoutClassesDAO {
+    /**
+     * Creates a new workout class in the database.
+     *
+     * @param workoutClassTypeId the ID of the workout class type
+     * @param workoutClassDesc   the description of the workout class
+     * @param trainerId          the ID of the trainer conducting the class
+     * @param workoutClassDatetime the date and time of the workout class
+     * @return the ID of the newly created workout class, or -1 if an error occurs
+     */
     public static int createWorkoutClass(int workoutClassTypeId, String workoutClassDesc, int trainerId, LocalDateTime workoutClassDatetime) {
         final String SQL = "INSERT INTO workout_classes (workout_class_type_id, workout_class_desc, trainer_id, workout_class_datetime) VALUES (?, ?, ?, ?)";
 
@@ -51,6 +64,13 @@ public class WorkoutClassesDAO {
         return -1; // Return -1 to indicate failure
     }
 
+    /**
+     * Retrieves a workout class by its ID.
+     *
+     * @param workoutClassId the ID of the workout class to retrieve
+     * @param roles          the list of roles for user permissions
+     * @return the WorkoutClass object if found, or null if not found or an error occurs
+     */
     public static WorkoutClass getWorkoutClassById(int workoutClassId, ArrayList<Role> roles) {
         WorkoutClass workoutClass = null;
         final String SQL = "SELECT * FROM workout_classes WHERE workout_class_id = ?";
@@ -82,10 +102,11 @@ public class WorkoutClassesDAO {
     }
 
     /**
+     * Retrieves all workout classes, optionally filtered by trainer ID.
      *
-     * @param trainerId use -1 to get all the workout classes
-     * @param roles
-     * @return
+     * @param trainerId the ID of the trainer to filter by, or -1 to retrieve all classes
+     * @param roles     the list of roles for user permissions
+     * @return an ArrayList of WorkoutClass objects
      */
     public static ArrayList<WorkoutClass> getWorkoutClasses(int trainerId, ArrayList<Role> roles){
         ArrayList<WorkoutClass> workoutClasses = new ArrayList<>();
@@ -130,6 +151,15 @@ public class WorkoutClassesDAO {
         return workoutClasses;
     }
 
+    /**
+     * Updates an existing workout class in the database.
+     *
+     * @param workoutClassId      the ID of the workout class to update
+     * @param workoutClassTypeId  the new ID of the workout class type
+     * @param workoutClassDesc    the new description of the workout class
+     * @param trainerId           the new ID of the trainer conducting the class
+     * @param workoutClassDatetime the new date and time of the workout class
+     */
     public static void updateWorkoutClass(int workoutClassId, int workoutClassTypeId, String workoutClassDesc, int trainerId, LocalDateTime workoutClassDatetime) {
         final String SQL = "UPDATE workout_classes SET workout_class_type_id = ?, workout_class_desc = ?, trainer_id = ?, workout_class_datetime = ? WHERE workout_class_id = ?";
 
@@ -152,6 +182,12 @@ public class WorkoutClassesDAO {
         }
     }
 
+    /**
+     * Deletes a workout class from the database by its ID.
+     *
+     * @param workoutClassId the ID of the workout class to delete
+     * @return the number of affected rows, or 0 if no class was found with the given ID
+     */
     public static int deleteWorkoutClass(int workoutClassId) {
         final String SQL = "DELETE FROM workout_classes WHERE workout_class_id = ?";
         int affectedRows = 0;
@@ -181,6 +217,12 @@ public class WorkoutClassesDAO {
         return affectedRows;
     }
 
+    /**
+     * Deletes all workout classes associated with a specific trainer ID.
+     *
+     * @param trainerId the ID of the trainer whose workout classes should be deleted
+     * @return the number of affected rows, or 0 if no classes were found for the given trainer ID
+     */
     public static int deleteWorkoutClassByTrainerId(int trainerId) {
         final String SQL = "DELETE FROM workout_classes WHERE trainer_id = ?";
         int affectedRows = 0;

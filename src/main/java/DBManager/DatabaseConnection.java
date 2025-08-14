@@ -7,6 +7,10 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.sql.*;
 
+/**
+ * DatabaseConnection class.
+ * This class is responsible for handling databaseconnection-related operations in the system.
+ */
 public class DatabaseConnection {
 
     // Database info
@@ -24,7 +28,10 @@ public class DatabaseConnection {
         }
     }
 
-    // Simple console clear
+    /**
+     * Simple console clear
+     * Executes the logic for clearConsole.
+     */
     private static void clearConsole() {
         try {
             if (System.getProperty("os.name").toLowerCase().contains("windows")) {
@@ -39,7 +46,10 @@ public class DatabaseConnection {
         }
     }
 
-    // Make DB if missing
+    /**
+     * Make DB if missing
+     * Executes the logic for createDatabaseIfNotExists.
+     */
     public static void createDatabaseIfNotExists() {
         try (Connection conn = DriverManager.getConnection(DEFAULT_URL, USER, PASSWORD);
              Statement stmt = conn.createStatement()) {
@@ -57,7 +67,11 @@ public class DatabaseConnection {
         }
     }
 
-    // Connect to DB
+    /**
+     * Connect to the DB and notify
+     * Executes the logic for connectAndNotify.
+     * @return boolean indicating success or failure.
+     */
     public static boolean connectAndNotify() {
         try (Connection conn = getConnection()) {
             if (conn != null) {
@@ -73,7 +87,11 @@ public class DatabaseConnection {
         return false;
     }
 
-    // Get DB connection
+    /**
+     * Get the DB connection
+     * Executes the logic for getConnection.
+     * @return Connection object.
+     */
     public static Connection getConnection() {
         Connection conn = null;
         try {
@@ -86,7 +104,11 @@ public class DatabaseConnection {
         return conn;
     }
 
-    // Create tables if missing
+    /**
+     * Create tables if they do not exist
+     * Executes the logic for createTablesIfNotExist.
+     * @return boolean indicating if tables were created.
+     */
     public static boolean createTablesIfNotExist() {
         boolean created = false;
         try (Connection conn = getConnection(); Statement stmt = conn.createStatement()) {
@@ -119,8 +141,12 @@ public class DatabaseConnection {
         }
         return created;
     }
-
-    // Insert initial data
+    
+    /**
+     * Insert initial data if needed
+     * Executes the logic for insertInitialDataIfNeeded.
+     * @param tablesCreated boolean indicating if tables were created.
+     */
     public static void insertInitialDataIfNeeded(boolean tablesCreated) {
         if (!tablesCreated) return;
 
