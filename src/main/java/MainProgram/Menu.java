@@ -626,7 +626,7 @@ private static void deleteUser(Scanner scanner) {
             System.out.println("4. Logout");
 
             option = scanner.nextInt();
-            scanner.nextLine();
+            scanner.nextLine(); // Consume newline
 
             switch (option) {
                 case 1:
@@ -724,19 +724,15 @@ private static void deleteUser(Scanner scanner) {
             switch (option) {
                 case 1:
                     createNewWorkoutClass(scanner, loggedUser);
-
                     break;
                 case 2:
                     updateWorkoutClass(scanner, loggedUser);
-
                     break;
                 case 3:
                     deleteWorkoutClass(scanner, loggedUser);
-
                     break;
                 case 4:
                     showTrainerWorkoutClasses(loggedUser, roles);
-                    ;
                     break;
                 case 5:
                     break;
@@ -830,14 +826,13 @@ private static void deleteUser(Scanner scanner) {
                 // Check if the Workout Class Type with this ID exists
                 try {
                     workoutClassType = WorkoutClassTypeDAO.getWorkoutClassType(workoutClassTypeId);
-                    enterToContinue();
                 } catch (Exception e) {
                     String errorMessage = "Error while retrieving the workout class type with ID: "
                             + workoutClassTypeId;
 
                     System.out.println(errorMessage);
-                    enterToContinue();
                     LoggingManagement.log(errorMessage + ": " + e.getMessage(), true);
+                    enterToContinue();
                 }
             } else {
                 input = scanner.nextLine();
@@ -860,12 +855,10 @@ private static void deleteUser(Scanner scanner) {
                             System.out.println("Description: " + wct.getDescription());
                             System.out.println("-------------------------------");
                         }
-                        enterToContinue();
                     }
                 } else {
                     System.out.println(
                             "Invalid input. Please enter a valid Workout Class Type ID or \"l\" to list the types.");
-                    enterToContinue();
                 }
             }
         } while (workoutClassType == null);
@@ -884,7 +877,6 @@ private static void deleteUser(Scanner scanner) {
                 break;
             } catch (Exception e) {
                 System.out.println("Invalid date format. Please enter the date in YYYY-MM-DD format.");
-                enterToContinue();
             }
         }
 
@@ -899,7 +891,6 @@ private static void deleteUser(Scanner scanner) {
                 break;
             } catch (Exception e) {
                 System.out.println("Invalid time format. Please enter the time in HH:MM format.");
-                enterToContinue();
             }
         }
 
