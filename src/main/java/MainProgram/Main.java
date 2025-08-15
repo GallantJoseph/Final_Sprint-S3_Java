@@ -3,7 +3,7 @@
  * Authors: Ashton Dennis
  *          Joseph Gallant
  *          Justin Greenslade
- * Date(s): August 4, 2025
+ * Date(s): August 4, 2025 - August 15, 2025
  */
 
 package MainProgram;
