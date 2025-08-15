@@ -52,14 +52,24 @@ public class Menu {
         scanner.nextLine();
     }
 
-    /**
-     * Clears the console output.
-     * This method uses ANSI escape codes to clear the console screen.
-     */
-    public static void clearConsole() {
-        System.out.print("\033[H\033[2J");
-        System.out.flush();
+/**
+ * Clears the console output.
+ *
+ * This method prints blank lines first (works in IntelliJ),
+ * then uses ANSI escape codes to move the cursor to the top
+ * (works in VS Code). Ensures new output starts at the top.
+ */
+public static void clearConsole() {
+    // Print blank lines first
+    for (int i = 0; i < 50; i++) {
+        System.out.println();
     }
+
+    // ANSI code to move cursor to top
+    System.out.print("\033[H");
+    System.out.flush();
+}
+
 
     /**
      * Displays the main menu and handles user interactions.
@@ -962,6 +972,7 @@ public class Menu {
                 // Check if the Workout Class Type with this ID exists
                 try {
                     workoutClassType = WorkoutClassTypeDAO.getWorkoutClassType(workoutClassTypeId);
+                    enterToContinue();
                 } catch (Exception e) {
                     String errorMessage = "Error while retrieving the workout class type with ID: "
                             + workoutClassTypeId;
@@ -991,10 +1002,12 @@ public class Menu {
                             System.out.println("Description: " + wct.getDescription());
                             System.out.println("-------------------------------");
                         }
+                        enterToContinue();
                     }
                 } else {
                     System.out.println(
                             "Invalid input. Please enter a valid Workout Class Type ID or \"l\" to list the types.");
+                            enterToContinue();
                 }
             }
         } while (workoutClassType == null);
@@ -1013,6 +1026,7 @@ public class Menu {
                 break;
             } catch (Exception e) {
                 System.out.println("Invalid date format. Please enter the date in YYYY-MM-DD format.");
+                enterToContinue();
             }
         }
 
@@ -1027,6 +1041,7 @@ public class Menu {
                 break;
             } catch (Exception e) {
                 System.out.println("Invalid time format. Please enter the time in HH:MM format.");
+                enterToContinue();
             }
         }
 
@@ -1082,9 +1097,10 @@ public class Menu {
         } catch (Exception e) {
 
             String errorMessage = "Error while retrieving the workout class with ID: " + workoutClassId;
-            enterToContinue();
+            
             System.out.println(errorMessage);
             LoggingManagement.log(errorMessage + ": " + e.getMessage(), true);
+            enterToContinue();
 
             return; // Exit if the workout class cannot be found
         }
@@ -1117,6 +1133,7 @@ public class Menu {
                 } catch (Exception e) {
                     System.out.println(
                             "Invalid date or time format. Please enter the date in YYYY-MM-DD and time in HH:MM format.");
+                            enterToContinue();
                 }
             } while (workoutClassDateTime == null);
 
@@ -1136,9 +1153,10 @@ public class Menu {
                 LoggingManagement.log(successMessage, false);
             } catch (Exception e) {
                 String errorMessage = "Error while creating the workout class type.";
-                enterToContinue();
+
                 System.out.println(errorMessage);
                 LoggingManagement.log(errorMessage + ": " + e.getMessage(), true);
+                                enterToContinue();
 
                 return;
             }
@@ -1156,9 +1174,10 @@ public class Menu {
             enterToContinue();
         } catch (Exception e) {
             String errorMessage = "Error while updating the workout class with ID: " + workoutClassId;
-            enterToContinue();
+            
             System.out.println(errorMessage);
             LoggingManagement.log(errorMessage + ": " + e.getMessage(), true);
+            enterToContinue();
 
         }
     }
