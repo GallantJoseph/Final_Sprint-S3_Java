@@ -52,6 +52,8 @@ public class MembershipTypesDAO {
                 LoggingManagement.log(errorMessage, true);
             }
 
+            preparedStatement.close();
+            connection.close();
         } catch (SQLException e) {
             String errorMessage = "Error while adding the new membership type.";
 
@@ -90,6 +92,9 @@ public class MembershipTypesDAO {
             } else {
                 System.out.println("No membership type found with ID: " + membershipTypeId);
             }
+
+            preparedStatement.close();
+            connection.close();
         } catch (SQLException e) {
             String errorMessage = "Error while retrieving the membership type with ID: " + membershipTypeId;
 
@@ -126,6 +131,9 @@ public class MembershipTypesDAO {
 
                 membershipTypes.add(membershipType);
             }
+
+            preparedStatement.close();
+            connection.close();
         } catch (SQLException e) {
             String errorMessage = "Error while retrieving all membership types.";
 
@@ -167,6 +175,8 @@ public class MembershipTypesDAO {
                 LoggingManagement.log("Membership type with ID: " + membershipTypeId + " updated successfully.", false);
             }
 
+            preparedStatement.close();
+            connection.close();
         } catch (SQLException e) {
             String errorMessage = "Error while updating the membership type with ID: " + membershipTypeId;
 
@@ -202,6 +212,8 @@ public class MembershipTypesDAO {
                 LoggingManagement.log("Membership type with ID: " + membershipTypeId + " deleted successfully.", false);
             }
 
+            preparedStatement.close();
+            connection.close();
         } catch (SQLException e) {
             String errorMessage = "Error while deleting the membership type with ID: " + membershipTypeId;
 

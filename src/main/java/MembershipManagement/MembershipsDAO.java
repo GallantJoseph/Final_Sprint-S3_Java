@@ -54,6 +54,9 @@ public class MembershipsDAO {
                 System.out.println(errorMessage);
                 LoggingManagement.log(errorMessage, true);
             }
+
+            preparedStatement.close();
+            connection.close();
         } catch (SQLException e) {
             String errorMessage = "Error while adding the new membership.";
 
@@ -92,6 +95,9 @@ public class MembershipsDAO {
             } else {
                 System.out.println("No membership found with ID: " + membershipId);
             }
+
+            preparedStatement.close();
+            connection.close();
         } catch (SQLException e) {
             String errorMessage = "Error while retrieving the membership with ID: " + membershipId;
 
@@ -128,6 +134,9 @@ public class MembershipsDAO {
 
                 memberships.add(membership);
             }
+
+            preparedStatement.close();
+            connection.close();
         } catch (SQLException e) {
             String errorMessage = "Error while retrieving all memberships.";
 
@@ -166,6 +175,9 @@ public class MembershipsDAO {
 
                 memberships.add(membership);
             }
+
+            preparedStatement.close();
+            connection.close();
         } catch (SQLException e) {
             String errorMessage = "Error while retrieving memberships for user with ID: " + memberId;
 
@@ -208,6 +220,8 @@ public class MembershipsDAO {
                 LoggingManagement.log("Membership with ID: " + membershipId + " updated successfully.", false);
             }
 
+            preparedStatement.close();
+            connection.close();
         } catch (SQLException e) {
             String errorMessage = "Error while updating the membership with ID: " + membershipId;
 
@@ -240,6 +254,8 @@ public class MembershipsDAO {
                 LoggingManagement.log("Membership with ID: " + membershipId + " deleted successfully.", false);
             }
 
+            preparedStatement.close();
+            connection.close();
         } catch (SQLException e) {
             String errorMessage = "Error while deleting the membership with ID: " + membershipId;
 

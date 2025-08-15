@@ -963,7 +963,7 @@ public static void clearConsole() {
 
         // Check if the user entered "l" to show the list of workout class types or an ID
         do {
-            System.out.println("\nEnter the Workout Class Type (\"l\" to show the full list):");
+            System.out.println("\nEnter the Workout Class Type ID (\"l\" to show available options):");
 
             if (scanner.hasNextInt()) {
                 workoutClassTypeId = scanner.nextInt();

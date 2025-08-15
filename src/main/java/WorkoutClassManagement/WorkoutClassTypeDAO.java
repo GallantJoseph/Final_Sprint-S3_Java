@@ -50,6 +50,9 @@ public class WorkoutClassTypeDAO {
                 System.out.println(errorMessage);
                 LoggingManagement.log(errorMessage, true);
             }
+
+            preparedStatement.close();
+            connection.close();
         } catch (SQLException e) {
             String errorMessage = "Error while adding the new workout class type.";
 
@@ -86,6 +89,9 @@ public class WorkoutClassTypeDAO {
             } else {
                 System.out.println("No workout class type found with ID: " + workoutClassTypeId);
             }
+
+            preparedStatement.close();
+            connection.close();
         } catch (SQLException e) {
             String errorMessage = "Error while retrieving the workout class type with ID: " + workoutClassTypeId;
 
@@ -120,6 +126,9 @@ public class WorkoutClassTypeDAO {
 
                 workoutClassTypes.add(workoutClassType);
             }
+
+            preparedStatement.close();
+            connection.close();
         } catch (SQLException e) {
             String errorMessage = "Error while retrieving all workout class types.";
 
@@ -149,6 +158,9 @@ public class WorkoutClassTypeDAO {
             preparedStatement.setString(3, description);
 
             preparedStatement.executeUpdate();
+
+            preparedStatement.close();
+            connection.close();
         } catch (SQLException e) {
             String errorMessage = "Error while updating the workout class type with ID: " + workoutClassTypeId;
 
@@ -182,6 +194,9 @@ public class WorkoutClassTypeDAO {
             } else {
                 LoggingManagement.log("Workout class type with ID: " + workoutClassTypeId + " deleted successfully.", false);
             }
+
+            preparedStatement.close();
+            connection.close();
         } catch (SQLException e) {
             String errorMessage = "Error while deleting the workout class type with ID: " + workoutClassTypeId + ". There might be workout classes associated with this type.";
 

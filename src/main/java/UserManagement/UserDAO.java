@@ -50,6 +50,9 @@ public class UserDAO {
                 LoggingManagement.log("New user added with ID: " + generatedId + " and username: " + user.getUsername(), false);
                 return generatedId; // Return the ID of the newly created user
             }
+
+            preparedStatement.close();
+            connection.close();
         } catch (SQLException e) {
             System.out.println("Error while adding the new user.\n");
             LoggingManagement.log("Error while adding the new user: " + e.getMessage(), true);
@@ -201,6 +204,9 @@ public class UserDAO {
             } else {
                 System.out.println("No user found with ID: " + userId);
             }
+
+            preparedStatement.close();
+            connection.close();
         } catch (SQLException e) {
             String errorMessage = "Error while retrieving the user with ID: " + userId;
 
@@ -259,6 +265,9 @@ public class UserDAO {
             } else {
                 System.out.println("No user found with username: " + username);
             }
+
+            preparedStatement.close();
+            connection.close();
         } catch (SQLException e) {
             String errorMessage = "Error while retrieving the user with username: " + username;
 
@@ -293,6 +302,9 @@ public class UserDAO {
 
                 roles.add(role);
             }
+
+            preparedStatement.close();
+            connection.close();
         } catch (SQLException e) {
             String errorMessage = "Error while retrieving roles from the database.";
 
