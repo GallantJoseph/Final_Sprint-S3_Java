@@ -972,7 +972,6 @@ public static void clearConsole() {
                 // Check if the Workout Class Type with this ID exists
                 try {
                     workoutClassType = WorkoutClassTypeDAO.getWorkoutClassType(workoutClassTypeId);
-                    enterToContinue();
                 } catch (Exception e) {
                     String errorMessage = "Error while retrieving the workout class type with ID: "
                             + workoutClassTypeId;
