@@ -61,6 +61,15 @@ public class UserService {
             user.setPassword(BCrypt.hashpw(user.getPassword(), BCrypt.gensalt()));
 
             int newUserId = UserDAO.createUser(user);
+
+            if (newUserId == -1) {
+                String errorMessage = "Error: the username :" + user.getUsername() + " already exists.";
+
+                System.out.println(errorMessage + " Please choose a different username.");
+                LoggingManagement.log(errorMessage, true);
+                return;
+            }
+
             System.out.println("\nUser " + user.getUsername() + " registered successfully with ID: " + newUserId);
             LoggingManagement.log("New user registered with ID: " + newUserId + " and username: " + user.getUsername(), false);
 
